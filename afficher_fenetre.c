@@ -6,6 +6,23 @@
 #include "main_bis.h"
 
 
+void afficher_piece_triangle_haut(POINT ptLosCentre);
+void afficher_piece_triangle_bas(POINT ptLosCentre);
+void afficher_piece_dame_triangle_haut(POINT ptLosCentre);
+void afficher_piece_dame_triangle_bas(POINT ptLosCentre);
+void afficher_piece_ig1(POINT ptLosCentre);
+void afficher_plateau_ig1();
+
+
+void afficher_piece_rond(POINT ptRondCentre);
+void afficher_piece_rond_dame(POINT ptRondCentre);
+void afficher_piece_ig2(POINT ptRondCentre);
+void afficher_plateau_ig2();
+
+void afficher_interface();
+void efface_tour();
+
+
 /* Vue */
 void afficher_piece_triangle_haut(POINT ptLosCentre)
 {
@@ -22,6 +39,7 @@ void afficher_piece_triangle_haut(POINT ptLosCentre)
 	
 	draw_fill_triangle(ptLosHaut,ptLosDroit,ptLosGauche,blanc);
 }
+
 
 /* Vue */
 void afficher_piece_triangle_bas(POINT ptLosCentre)
@@ -42,7 +60,7 @@ void afficher_piece_triangle_bas(POINT ptLosCentre)
 
 
 /* Vue */
-void afficher_dame_triangle_haut(POINT ptLosCentre)
+void afficher_piece_dame_triangle_haut(POINT ptLosCentre)
 {
 	POINT ptLosDameHaut,ptLosDameDroit,ptLosDameGauche;
 	
@@ -60,7 +78,7 @@ void afficher_dame_triangle_haut(POINT ptLosCentre)
 
 
 /* Vue */
-void afficher_dame_triangle_bas(POINT ptLosCentre)
+void afficher_piece_dame_triangle_bas(POINT ptLosCentre)
 {
 	POINT ptLosDameBas,ptLosDameDroit,ptLosDameGauche;
 	
@@ -87,10 +105,40 @@ void afficher_piece_ig1(POINT ptLosCentre)
 	
 	/* else if Piece = dame */
 	
-	afficher_dame_triangle_haut(ptLosCentre);
-	afficher_dame_triangle_bas(ptLosCentre);
+	afficher_piece_dame_triangle_haut(ptLosCentre);
+	afficher_piece_dame_triangle_bas(ptLosCentre);
 }
 
+
+/* Vue */
+void afficher_plateau_ig1()
+{
+	int i=0,j=0;
+	POINT ptCentreCase;
+	ptCentreCase.x=LARG_CASE/2;ptCentreCase.y=LARG_CASE/2;
+	
+	for(i=0;i<NB_CASES;i++)
+	{
+		for(j=0;j<NB_CASES;j++)
+		{		
+			if ( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) ) //Si les coordonnées sont toutes les 2 paires ou toutes les 2 impaires
+			{
+				draw_fill_circle(ptCentreCase,LARG_CASE/2,burlywood);
+			}
+			
+			else
+			{
+				draw_fill_circle(ptCentreCase,LARG_CASE/2,saddlebrown);
+			}
+		
+			ptCentreCase.x+=LARG_CASE;
+		}
+		
+		ptCentreCase.x=LARG_CASE/2;
+		ptCentreCase.y+=LARG_CASE;
+	}
+	
+}
 
 /* Vue */
 void afficher_piece_rond(POINT ptRondCentre)
@@ -117,33 +165,6 @@ void afficher_piece_ig2(POINT ptRondCentre)
 	/* if Piece = dame */
 	
 	afficher_piece_rond_dame(ptRondCentre);
-}
-
-
-/* Vue */
-void afficher_plateau_ig1()
-{
-	int i=0,j=0;
-	POINT ptCentreCase;
-	ptCentreCase.x=LARG_CASE/2;ptCentreCase.y=LARG_CASE/2;
-	
-	for(i=0;i<NB_CASES;i++)
-	{
-		for(j=0;j<NB_CASES;j++)
-		{		
-			if ( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) ) //Si les coordonnées sont toutes les 2 paires ou toutes les 2 impaires
-			{draw_fill_circle(ptCentreCase,LARG_CASE/2,burlywood);}
-			
-			else
-			{draw_fill_circle(ptCentreCase,LARG_CASE/2,saddlebrown);}
-		
-			ptCentreCase.x+=LARG_CASE;
-		}
-		
-		ptCentreCase.x=LARG_CASE/2;
-		ptCentreCase.y+=LARG_CASE;
-	}
-	
 }
 
 
