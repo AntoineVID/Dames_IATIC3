@@ -15,7 +15,7 @@
 #define COULEUR_JOUEUR2 gris
 #define COULEUR_DAME rouge
 #define COULEUR_CASE_LIBRE jaune
-#define COULEUR_CASE_JOUEUR saddlebrown
+#define COULEUR_CASE_JOUEURS saddlebrown
 #define COULEUR_CASE_VIDE burlywood
 
 
