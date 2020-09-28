@@ -3,7 +3,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-//~ #include "graphics.h"
+#include "graphics.h"
 
 #define LARG_FENETRE 800
 #define HAUT_FENETRE 600
