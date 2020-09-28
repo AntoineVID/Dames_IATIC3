@@ -80,6 +80,32 @@ BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleur
 		return 0;
 }
 
+BOOL est_bloque(NUMCASE depart)
+{
+	NUMCASE arrivee;
+	if(plateau[depart.ligne][depart.colonne].typeP == dame || plateau[depart.ligne][depart.colonne].coulP == coul1)
+	{
+		arrivee.ligne = depart.ligne + 1;
+		arrivee.colonne = depart.colonne - 1;
+		if(depart.colonne > 0 && est_coup_valide_deplacement(depart, arrivee))
+			return 0;
+		arrivee.colonne = depart.colonne - 1;
+		if(depart.colonne < 9 && est_coup_valide_deplacement(depart, arrivee))
+			return 0;
+	}
+	if(plateau[depart.ligne][depart.colonne].typeP == dame || plateau[depart.ligne][depart.colonne].coulP == coul2)
+	{
+		arrivee.ligne = depart.ligne - 1;
+		arrivee.colonne = depart.colonne - 1;
+		if(depart.colonne > 0 && est_coup_valide_deplacement(depart, arrivee))
+			return 0;
+		arrivee.colonne = depart.colonne - 1;
+		if(depart.colonne < 9 && est_coup_valide_deplacement(depart, arrivee))
+			return 0;
+	}
+	return 1;
+}
+
 void transformer_pion_en_dame(int coordX, int coordY, COULP couleurJoueur)
 {
 	if(plateau[coordX][coordY].typeP != dame)
