@@ -1,13 +1,4 @@
-/* CORBEIL Alex - VIDAL Antoine IATIC3 */
-
 #include "main.h"
-#include "graphics.h"
-#include <stdio.h>
-
-void initialiser_plateau();
-BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination);
-BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleurJoueur);
-
 
 PIECE plateau[10][10];
 
@@ -93,7 +84,7 @@ void transformer_pion_en_dame(int coordX, int coordY, COULP couleurJoueur)
 {
 	if(plateau[coordX][coordY].typeP != dame)
 	{
-		if( ( couleurJoueur == coul1 && coordY == 9 )
+		if( ( coordY == 9 )
 		||
 		( coordY == 0 ))
 		{
@@ -147,11 +138,12 @@ void afficher_plateau_dans_terminal()
 	printf("   0 1 2 3 4 5 6 7 8 9\n");
 }
 
-void jouer_dans_terminal(COULP couleurJoueur)
+void jouer_dans_terminal(COULP couleurJoueur, int *nbreJ1, int *nbreJ2)
 {
 	NUMCASE clic1, clic2;
 	do
 	{
+		printf("J1 : %d pions | J2 : %d pions\n", *nbreJ1, *nbreJ2);
 		printf("Le joueur %d joue. Coordonnées du pion à déplacer :\n", couleurJoueur);
 		scanf("%d %d", &clic1.ligne, &clic1.colonne);
 		printf("La case %d %d est : ", clic1.ligne, clic1.colonne);
@@ -176,6 +168,24 @@ void jouer_dans_terminal(COULP couleurJoueur)
 				plateau[(clic1.ligne + clic2.ligne) / 2][(clic1.colonne + clic2.colonne) / 2].coulP = aucune;
 				plateau[clic2.ligne][clic2.colonne].typeP = plateau[clic1.ligne][clic1.colonne].typeP;
 				plateau[clic2.ligne][clic2.colonne].coulP = couleurJoueur;
+				if(couleurJoueur == coul1)
+				{
+					*nbreJ2 = *nbreJ2 - 1;
+					if(*nbreJ2 == 0)
+					{
+						printf("Le J1 a gagné !\n");
+						exit(0);
+					}
+				}
+				else
+				{
+					*nbreJ1 = *nbreJ1 - 1;
+					if(*nbreJ1 == 0)
+					{
+						printf("Le J2 a gagné !\n");
+						exit(0);
+					}
+				}
 				transformer_pion_en_dame(clic2.ligne, clic2.colonne, couleurJoueur);
 				break;
 			}
@@ -197,15 +207,13 @@ void jouer_dans_terminal(COULP couleurJoueur)
 
 int main()
 {
+	int nbrePionJ1 = 20, nbrePionJ2 = 20;
 	COULP couleurJoueur = coul1;
-	//init_graphics(LARG_FENETRE, HAUT_FENETRE);
-	//affiche_auto_off();	
-	//wait_escape();
 	initialiser_plateau();
 	while(1)
 	{
 		afficher_plateau_dans_terminal();
-		jouer_dans_terminal(couleurJoueur);
+		jouer_dans_terminal(couleurJoueur, &nbrePionJ1, &nbrePionJ2);
 		couleurJoueur = (couleurJoueur == coul1) ? coul2 : coul1;
 	}
 	return(0);
