@@ -267,7 +267,7 @@ void afficher_plateau_ig1()
 		{
 			if ( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) ) //Si les coordonnées sont toutes les 2 paires ou toutes les 2 impaires
 			{
-				afficher_case_ig1(ptCentreCase,COULEUR_CASE_JOUEUR);
+				afficher_case_ig1(ptCentreCase,COULEUR_CASE_JOUEURS);
 				
 				if(plateau[j][i].coulP != aucune)
 				{
@@ -346,7 +346,7 @@ void afficher_plateau_ig2()
 		{
 			if ( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) ) //Si les coordonnées sont toutes les 2 paires ou toutes les 2 impaires
 			{
-				afficher_case_ig2(ptbgCase,pthdCase,COULEUR_CASE_JOUEUR);
+				afficher_case_ig2(ptbgCase,pthdCase,COULEUR_CASE_JOUEURS);
 				
 				if(plateau[j][i].coulP != aucune)
 				{
@@ -837,7 +837,7 @@ void afficher_exemple_ecran_titre_ig1(POINT ptTitreIg1)
 	ptCaseTitreJ1.x=ptTitreIg1.x;ptCaseTitreJ1.y=ptTitreIg1.y-100;
 	ptCaseTitreJ2.x=ptCaseTitreJ1.x+2*LARG_CASE;ptCaseTitreJ2.y=ptCaseTitreJ1.y;
 	
-	afficher_case_ig1(ptCaseTitreJ1,COULEUR_CASE_JOUEUR);
+	afficher_case_ig1(ptCaseTitreJ1,COULEUR_CASE_JOUEURS);
 	afficher_piece_triangle_haut(ptCaseTitreJ1,COULEUR_JOUEUR1);
 	afficher_piece_triangle_bas(ptCaseTitreJ1,COULEUR_JOUEUR1);
 	
@@ -874,7 +874,7 @@ void afficher_exemple_ecran_titre_ig2(POINT ptTitreIg2)
 	ptCentreCaseJ2.x=ptCasebgJ2.x+LARG_CASE/2;ptCentreCaseJ2.y=ptCasebgJ2.y+LARG_CASE/2;
 
 
-	afficher_case_ig2(ptCasebgJ1,ptCasehdJ1,COULEUR_CASE_JOUEUR);
+	afficher_case_ig2(ptCasebgJ1,ptCasehdJ1,COULEUR_CASE_JOUEURS);
 	afficher_piece_rond(ptCentreCaseJ1,COULEUR_JOUEUR1);
 	
 	afficher_case_ig2(ptCasebgJ2,ptCasehdJ2,COULEUR_CASE_VIDE);
