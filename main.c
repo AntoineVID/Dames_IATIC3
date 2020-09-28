@@ -35,11 +35,11 @@ void initialiser_plateau()
 
 BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination)
 {
-	PIECE piece = plateau[origine.ligne][origine.colonne];
-	int deltaLig = destination.ligne - origine.ligne;
-	int deltaCol = destination.colonne - origine.colonne;
+	PIECE piece = plateau[origine.colonne][origine.ligne];
+	int deltaLig = destination.colonne - origine.colonne;
+	int deltaCol = destination.ligne - origine.ligne;
 
-	if(plateau[destination.ligne][destination.colonne].coulP == aucune)
+	if(plateau[destination.colonne][destination.ligne].coulP == aucune)
 	{
 		if( ( deltaLig == 1 && deltaCol == 1 && (piece.typeP == dame || piece.coulP == coul1) )
 		||
@@ -58,20 +58,20 @@ BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination)
 
 BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleurJoueur)
 {
-	PIECE piece = plateau[origine.ligne][origine.colonne];
-	int deltaLig = destination.ligne - origine.ligne;
-	int deltaCol = destination.colonne - origine.colonne;
+	PIECE piece = plateau[origine.colonne][origine.ligne];
+	int deltaLig = destination.colonne - origine.colonne;
+	int deltaCol = destination.ligne - origine.ligne;
 	COULP couleurEnnemi = (couleurJoueur == coul1) ? coul2 : coul1;
 	
-	if(plateau[destination.ligne][destination.colonne].coulP == aucune)
+	if(plateau[destination.colonne][destination.ligne].coulP == aucune)
 	{
-		if( ( deltaLig == 2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.ligne - 1][destination.colonne - 1].coulP == couleurEnnemi )
+		if( ( deltaLig == 2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.colonne - 1][destination.ligne - 1].coulP == couleurEnnemi )
 		||
-		( deltaLig == -2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.ligne + 1][destination.colonne - 1].coulP == couleurEnnemi )
+		( deltaLig == -2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.colonne + 1][destination.ligne - 1].coulP == couleurEnnemi )
 		||
-		( deltaLig == 2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.ligne - 1][destination.colonne + 1].coulP == couleurEnnemi )
+		( deltaLig == 2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.colonne - 1][destination.ligne + 1].coulP == couleurEnnemi )
 		||
-		( deltaLig == -2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.ligne + 1][destination.colonne + 1].coulP == couleurEnnemi ))
+		( deltaLig == -2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.colonne + 1][destination.ligne + 1].coulP == couleurEnnemi ))
 			return 1;
 		else
 			return 0;
@@ -83,38 +83,41 @@ BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleur
 BOOL est_bloque(NUMCASE depart)
 {
 	NUMCASE arrivee;
-	if(plateau[depart.ligne][depart.colonne].typeP == dame || plateau[depart.ligne][depart.colonne].coulP == coul1)
+
+	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul1)
 	{
-		arrivee.ligne = depart.ligne + 1;
-		arrivee.colonne = depart.colonne - 1;
-		if(depart.colonne > 0 && est_coup_valide_deplacement(depart, arrivee))
+		printf("jjjjjaaaaj\n");
+		arrivee.colonne = depart.colonne + 1;
+		arrivee.ligne = depart.ligne - 1;
+		printf("%d %d %d\n", arrivee.colonne, arrivee.ligne, plateau[arrivee.colonne][arrivee.ligne].typeP);
+		if(depart.ligne > 0 && est_coup_valide_deplacement(depart, arrivee))
 			return 0;
-		arrivee.colonne = depart.colonne - 1;
-		if(depart.colonne < 9 && est_coup_valide_deplacement(depart, arrivee))
+		arrivee.ligne = depart.ligne - 1;
+		if(depart.ligne < 9 && est_coup_valide_deplacement(depart, arrivee))
 			return 0;
 	}
-	if(plateau[depart.ligne][depart.colonne].typeP == dame || plateau[depart.ligne][depart.colonne].coulP == coul2)
+	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul2)
 	{
+		arrivee.colonne = depart.colonne - 1;
 		arrivee.ligne = depart.ligne - 1;
-		arrivee.colonne = depart.colonne - 1;
-		if(depart.colonne > 0 && est_coup_valide_deplacement(depart, arrivee))
+		if(depart.ligne > 0 && est_coup_valide_deplacement(depart, arrivee))
 			return 0;
-		arrivee.colonne = depart.colonne - 1;
-		if(depart.colonne < 9 && est_coup_valide_deplacement(depart, arrivee))
+		arrivee.ligne = depart.ligne - 1;
+		if(depart.ligne < 9 && est_coup_valide_deplacement(depart, arrivee))
 			return 0;
 	}
 	return 1;
 }
 
-void transformer_pion_en_dame(int coordX, int coordY, COULP couleurJoueur)
+void transformer_pion_en_dame(NUMCASE pion, COULP couleurJoueur)
 {
-	if(plateau[coordX][coordY].typeP != dame)
+	if(plateau[pion.colonne][pion.ligne].typeP != dame)
 	{
-		if( ( coordY == 9 )
+		if( ( pion.ligne == 9 )
 		||
-		( coordY == 0 ))
+		( pion.ligne == 0 ))
 		{
-			plateau[coordX][coordY].typeP = dame;
+			plateau[pion.colonne][pion.ligne].typeP = dame;
 		}
 	}
 }
@@ -171,29 +174,34 @@ void jouer_dans_terminal(COULP couleurJoueur, int *nbreJ1, int *nbreJ2)
 	{
 		printf("J1 : %d pions | J2 : %d pions\n", *nbreJ1, *nbreJ2);
 		printf("Le joueur %d joue. Coordonnées du pion à déplacer :\n", couleurJoueur);
-		scanf("%d %d", &clic1.ligne, &clic1.colonne);
-		printf("La case %d %d est : ", clic1.ligne, clic1.colonne);
-		afficher_etat_case_dans_terminal(clic1.ligne, clic1.colonne);
+		scanf("%d %d", &clic1.colonne, &clic1.ligne);
+		printf("La case %d %d est : ", clic1.colonne, clic1.ligne);
+		afficher_etat_case_dans_terminal(clic1.colonne, clic1.ligne);
 		printf("\n");
-		if( plateau[clic1.ligne][clic1.colonne].coulP  == couleurJoueur)
+		/*if(est_bloque(clic1))
+		{
+			printf("Pion bloqué. Veuillez en choisir un autre.\n");
+		}
+		else */if( plateau[clic1.colonne][clic1.ligne].coulP  == couleurJoueur)
 		{
 			printf("Vous pouvez jouer!\n");
 			printf("Le joueur %d joue. Coordonnées de destination :\n", couleurJoueur);
-			scanf("%d %d", &clic2.ligne, &clic2.colonne);
+			scanf("%d %d", &clic2.colonne, &clic2.ligne);
 			if(est_coup_valide_deplacement(clic1, clic2))
 			{
-				plateau[clic1.ligne][clic1.colonne].coulP = aucune;
-				plateau[clic2.ligne][clic2.colonne].typeP = plateau[clic1.ligne][clic1.colonne].typeP;
-				plateau[clic2.ligne][clic2.colonne].coulP = couleurJoueur;
-				transformer_pion_en_dame(clic2.ligne, clic2.colonne, couleurJoueur);
+				plateau[clic1.colonne][clic1.ligne].coulP = aucune;
+				plateau[clic2.colonne][clic2.ligne].typeP = plateau[clic1.colonne][clic1.ligne].typeP;
+				plateau[clic2.colonne][clic2.ligne].coulP = couleurJoueur;
+				transformer_pion_en_dame(clic2, couleurJoueur);
 				break;
 			}
 			if(est_coup_valide_attaque(clic1, clic2, couleurJoueur))
 			{
-				plateau[clic1.ligne][clic1.colonne].coulP = aucune;
-				plateau[(clic1.ligne + clic2.ligne) / 2][(clic1.colonne + clic2.colonne) / 2].coulP = aucune;
-				plateau[clic2.ligne][clic2.colonne].typeP = plateau[clic1.ligne][clic1.colonne].typeP;
-				plateau[clic2.ligne][clic2.colonne].coulP = couleurJoueur;
+				plateau[clic1.colonne][clic1.ligne].coulP = aucune;
+				plateau[(clic1.colonne + clic2.colonne) / 2][(clic1.ligne + clic2.ligne) / 2].coulP = aucune;
+				plateau[clic2.colonne][clic2.ligne].typeP = plateau[clic1.colonne][clic1.ligne].typeP;
+				plateau[clic2.colonne][clic2.ligne].coulP = couleurJoueur;
+				transformer_pion_en_dame(clic2, couleurJoueur);
 				if(couleurJoueur == coul1)
 				{
 					*nbreJ2 = *nbreJ2 - 1;
@@ -212,7 +220,6 @@ void jouer_dans_terminal(COULP couleurJoueur, int *nbreJ1, int *nbreJ2)
 						exit(0);
 					}
 				}
-				transformer_pion_en_dame(clic2.ligne, clic2.colonne, couleurJoueur);
 				break;
 			}
 			else
