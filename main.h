@@ -10,13 +10,13 @@
 
 #define LARG_CASE HAUT_FENETRE/10
 #define LONGUEUR_PIECE (2.0/3.0)*LARG_CASE
-#define NB_CASES 10
 
 #define COULEUR_JOUEUR1 blanc
 #define COULEUR_JOUEUR2 gris
 #define COULEUR_DAME rouge
 #define COULEUR_CASE_LIBRE jaune
-
+#define COULEUR_CASE_JOUEUR saddlebrown
+#define COULEUR_CASE_VIDE burlywood
 
 
 typedef enum TYPEP{
@@ -36,7 +36,6 @@ typedef struct NUMCASE{
 	int ligne;
 	int colonne;
 } NUMCASE;
-
 
 
 #endif
