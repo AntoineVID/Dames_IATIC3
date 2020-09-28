@@ -1,6 +1,8 @@
 # Dames_IATIC3
 RaN_Info_IATIC_3
 
+Pour choisir interface : gauche = ig1 / droite = ig2 (sera mieux fait plus tard)
+
 Couleur pion j1 : gris
 
 Couleur pion j2 : blanc
@@ -9,4 +11,4 @@ Couleur dame j1/j2 : rouge (meme forme mais plus petite dans le pion)
 
 Couleur case libre : jaune
 
-Couleur plateau : burlywood /saddlebrown
+Couleur plateau : burlywood / saddlebrown
