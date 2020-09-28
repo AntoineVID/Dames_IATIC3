@@ -3,7 +3,7 @@ RaN_Info_IATIC_3
 
 Couleur pion j1 : gris
 
-Couleur pion j2 : noir
+Couleur pion j2 : blanc
 
 Couleur dame j1/j2 : rouge (meme forme mais plus petite dans le pion)
 
