@@ -176,11 +176,11 @@ void jouer_dans_terminal(COULP couleurJoueur, int *nbreJ1, int *nbreJ2)
 		printf("La case %d %d est : ", clic1.colonne, clic1.ligne);
 		afficher_etat_case_dans_terminal(clic1.colonne, clic1.ligne);
 		printf("\n");
-		if(est_bloque(clic1))
+		/*if(est_bloque(clic1))
 		{
 			printf("Pion bloqué. Veuillez en choisir un autre.\n");
 		}
-		else if( plateau[clic1.colonne][clic1.ligne].coulP  == couleurJoueur)
+		else */if( plateau[clic1.colonne][clic1.ligne].coulP  == couleurJoueur)
 		{
 			printf("Vous pouvez jouer!\n");
 			printf("Le joueur %d joue. Coordonnées de destination :\n", couleurJoueur);
