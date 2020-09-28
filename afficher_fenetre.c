@@ -90,7 +90,7 @@ BOOL savoir_si_rejouer_partie(POINT ptOui,POINT ptNon,POINT clicRedemanderPartie
 BOOL redemander_partie();
 
 
-PIECE plateau[NB_CASES][NB_CASES];
+PIECE plateau[10][10];
 
 
 /* ----- MODELE ----- */
@@ -261,9 +261,9 @@ void afficher_plateau_ig1()
 	
 	ptCentreCase.x=LARG_CASE/2;ptCentreCase.y=LARG_CASE/2;
 	
-	for(i=0;i<NB_CASES;i++)
+	for(i=0;i<10;i++)
 	{
-		for(j=0;j<NB_CASES;j++)
+		for(j=0;j<10;j++)
 		{
 			if ( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) ) //Si les coordonnées sont toutes les 2 paires ou toutes les 2 impaires
 			{
@@ -340,9 +340,9 @@ void afficher_plateau_ig2()
 	ptbgCase.x=0;ptbgCase.y=0;
 	pthdCase.x=ptbgCase.x+LARG_CASE;pthdCase.y=ptbgCase.y+LARG_CASE;
 
-	for(i=0;i<NB_CASES;i++)
+	for(i=0;i<10;i++)
 	{
-		for(j=0;j<NB_CASES;j++)
+		for(j=0;j<10;j++)
 		{
 			if ( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) ) //Si les coordonnées sont toutes les 2 paires ou toutes les 2 impaires
 			{
@@ -632,7 +632,7 @@ int connaitre_cases_libres_pion_j1_ig1(NUMCASE numCasePionChoisi)
 		{nbCasesLibres++;}
 	}
 	
-	if(numCasePionChoisi.ligne<NB_CASES-1)
+	if(numCasePionChoisi.ligne<9)
 	{
 		if(plateau[(numCasePionChoisi.ligne)+1][(numCasePionChoisi.colonne)+1].coulP == aucune)
 		{nbCasesLibres++;}
@@ -655,7 +655,7 @@ int connaitre_cases_libres_pion_j2_ig1(NUMCASE numCasePionChoisi)
 		{nbCasesLibres++;}
 	}
 	
-	if(numCasePionChoisi.ligne<NB_CASES-1)
+	if(numCasePionChoisi.ligne<9)
 	{
 		if(plateau[(numCasePionChoisi.ligne)+1][(numCasePionChoisi.colonne)-1].coulP == aucune)
 		{nbCasesLibres++;}
