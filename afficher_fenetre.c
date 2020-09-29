@@ -664,9 +664,8 @@ void changer_tour_interface_ig2(COULP couleurJoueur)
 /* Controleur */
 void tour_piece_ig1(COULP couleurJoueur)
 {
-	POINT centreCasePionChoisi,centreCaseDestination,centreCaseLibre1,centreCaseLibre2;
+	POINT centreCasePionChoisi,centreCaseDestination,centreCaseLibre1={50,50},centreCaseLibre2={50,50};
 	NUMCASE numCasePionChoisi,numCaseDestination;
-	
 	
 	do{
 		choisir_pion_valide(couleurJoueur,&centreCasePionChoisi,&numCasePionChoisi);
@@ -781,7 +780,6 @@ void choisir_pion_valide(COULP couleurPionValide,POINT *centreCasePionChoisi,NUM
 {
 	COULP couleurPionChoisi;
 	POINT clicPionChoisi;
-	//~ int nbCasesLibres=0;
 	
 	do{
 		
@@ -801,20 +799,32 @@ void calculer_centre_cases_libres_pion_ig1(POINT centrePionChoisi,POINT *centreC
 {
 	if(couleurJoueur==coul1)
 	{
-		centreCaseLibre1->x=centrePionChoisi.x+LARG_CASE;
-		centreCaseLibre1->y=centrePionChoisi.y+LARG_CASE;
+		if(centrePionChoisi.x < LARG_CASE*9)
+		{
+			centreCaseLibre1->x=centrePionChoisi.x+LARG_CASE;
+			centreCaseLibre1->y=centrePionChoisi.y+LARG_CASE;
+		}
 		
-		centreCaseLibre2->x=centrePionChoisi.x-LARG_CASE;
-		centreCaseLibre2->y=centrePionChoisi.y+LARG_CASE;
+		if(centrePionChoisi.x > LARG_CASE)
+		{
+			centreCaseLibre2->x=centrePionChoisi.x-LARG_CASE;
+			centreCaseLibre2->y=centrePionChoisi.y+LARG_CASE;
+		}
 	}
 	
 	else if(couleurJoueur==coul2)
 	{
-		centreCaseLibre1->x=centrePionChoisi.x+LARG_CASE;
-		centreCaseLibre1->y=centrePionChoisi.y-LARG_CASE;
+		if(centrePionChoisi.x < LARG_CASE*9)
+		{
+			centreCaseLibre1->x=centrePionChoisi.x+LARG_CASE;
+			centreCaseLibre1->y=centrePionChoisi.y-LARG_CASE;
+		}
 		
-		centreCaseLibre2->x=centrePionChoisi.x-LARG_CASE;
-		centreCaseLibre2->y=centrePionChoisi.y-LARG_CASE;
+		if(centrePionChoisi.x > LARG_CASE)
+		{		
+			centreCaseLibre2->x=centrePionChoisi.x-LARG_CASE;
+			centreCaseLibre2->y=centrePionChoisi.y-LARG_CASE;
+		}
 	}
 }
 
@@ -822,12 +832,18 @@ void calculer_centre_cases_libres_pion_ig1(POINT centrePionChoisi,POINT *centreC
 /* Vue */
 void afficher_cases_libres_pion_ig1(POINT centreCaseLibre1,POINT centreCaseLibre2,COULP couleurJoueur)
 {
-	if(centreCaseLibre1.x>LARG_CASE) //Eviter dessiner sur bord gauche
+	NUMCASE numCaseLibre1,numCaseLibre2;
+	
+	numCaseLibre1=convertir_centreCase_en_numCase(centreCaseLibre1);
+	numCaseLibre2=convertir_centreCase_en_numCase(centreCaseLibre2);
+
+	
+	if( (numCaseLibre1.ligne<9) && (plateau[numCaseLibre1.colonne][numCaseLibre1.ligne].typeP == vide) ) //Eviter dessiner sur bord gauche
 	{
 		draw_fill_circle(centreCaseLibre1,LARG_CASE/2,COULEUR_CASE_LIBRE);
 	}
 	
-	if(centreCaseLibre2.x<(HAUT_FENETRE-LARG_CASE)) //Eviter dessiner sur bord droit
+	if( (numCaseLibre2.ligne>0) && (plateau[numCaseLibre2.colonne][numCaseLibre2.ligne].typeP == vide) ) //Eviter dessiner sur bord droit
 	{
 		draw_fill_circle(centreCaseLibre2,LARG_CASE/2,COULEUR_CASE_LIBRE);
 	}
@@ -907,7 +923,14 @@ void choisir_destination_ig1(POINT centreCaseChoisi,POINT *centreCaseDestination
 
 void enlever_couleur_case_libre_pion_ig1(POINT CentreCaseLibre)
 {
-	draw_fill_circle(CentreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);
+	NUMCASE numCaseLibre;
+	
+	numCaseLibre=convertir_centreCase_en_numCase(CentreCaseLibre);
+	
+	if(plateau[numCaseLibre.colonne][numCaseLibre.ligne].typeP == vide)
+	{
+		draw_fill_circle(CentreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);
+	}
 }
 
 
@@ -921,16 +944,16 @@ void effacer_piece_case_orig_ig1(POINT ptCasePionOrig)
 void bouger_pion_choisi_ig1(NUMCASE numCaseOrig,NUMCASE numCaseDestination,POINT centreCaseLibre1,POINT centreCaseLibre2,COULP couleurJoueur)
 {
 	POINT ptCasePieceOrig,ptCaseDestination;
-	
+		
 	ptCasePieceOrig=convertir_numCase_en_centreCase(numCaseOrig);
 	ptCaseDestination=convertir_numCase_en_centreCase(numCaseDestination);
-	
-	changer_etat_case_destination(numCaseOrig,numCaseDestination,couleurJoueur);
-	changer_etat_case_orig(numCaseOrig);
-	
+		
 	enlever_couleur_case_libre_pion_ig1(centreCaseLibre1);
 	enlever_couleur_case_libre_pion_ig1(centreCaseLibre2);
 	effacer_piece_case_orig_ig1(ptCasePieceOrig);
+	
+	changer_etat_case_destination(numCaseOrig,numCaseDestination,couleurJoueur);
+	changer_etat_case_orig(numCaseOrig);
 	
 	afficher_piece_ig1(ptCaseDestination,plateau[numCaseDestination.colonne][numCaseDestination.ligne]);
 	
