@@ -227,9 +227,11 @@ void afficher_plateau_dans_terminal()
 
 void jouer_dans_terminal(COULP couleurJoueur, int *nbrePionJ1, int *nbrePionJ2)
 {
+	char choix;
 	NUMCASE clic1, clic2;
 	do
 	{
+		afficher_plateau_dans_terminal();
 		printf("J1 : %d pions | J2 : %d pions\n", *nbrePionJ1, *nbrePionJ2);
 		printf("Le joueur %d joue. Coordonnées du pion à déplacer :\n", couleurJoueur);
 		scanf("%d %d", &clic1.colonne, &clic1.ligne);
@@ -278,7 +280,22 @@ void jouer_dans_terminal(COULP couleurJoueur, int *nbrePionJ1, int *nbrePionJ2)
 						exit(0);
 					}
 				}
-				break;
+				if(donner_position_cases_libres_attaque(clic2, couleurJoueur))
+				{
+					printf("Voulez-vous continuer le tour en attaquant de nouveau ? (o/n)\n");
+					scanf(" %c", &choix);
+					if(choix == 'n')
+					{
+						printf("OK, tour terminé !\n");
+						break;
+					}
+					else
+					{
+						printf("OK, vous allez commencer un nouveau tour !\n");
+					}
+				}
+				else
+					break;
 			}
 			else
 			{
@@ -303,7 +320,6 @@ int main()
 	initialiser_plateau();
 	while(1)
 	{
-		afficher_plateau_dans_terminal();
 		jouer_dans_terminal(couleurJoueur, &nbrePionJ1, &nbrePionJ2);
 		if(est_joueur_bloque(coul1, nbrePionJ1))
 		{
