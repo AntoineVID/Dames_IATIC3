@@ -37,7 +37,7 @@ void afficher_piece_triangle_haut(POINT ptLosangeCentre,COULEUR couleur);
 void afficher_piece_triangle_bas(POINT ptLosangeCentre,COULEUR couleur);
 void afficher_piece_dame_triangle_haut(POINT ptLosangeCentre);
 void afficher_piece_dame_triangle_bas(POINT ptLosangeCentre);
-void afficher_piece_ig1(POINT ptLosangeCentre,PIECE piece);
+void afficher_piece_ig1(POINT ptLosangeCentre,int ligne,int colonne);
 void afficher_case_ig1(POINT ptCentreCase,COULEUR couleur);
 void afficher_plateau_ig1();
 
@@ -75,8 +75,10 @@ POINT convertir_numCase_en_centreCase(NUMCASE numcase);
 void choisir_pion_valide(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi);
 
 void calculer_centre_cases_libres_pion_ig1(POINT centrePionChoisi,POINT *centreCaseLibre1,POINT *centreCaseLibre2,COULP couleurJoueur);
-void afficher_cases_libres_pion_ig1(POINT centreCaseLibre1,POINT centreCaseLibre2,COULP couleurJoueur);
-void trouver_cases_libres_pion_ig1(POINT centrePionChoisi,POINT *centreCaseLibre1,POINT *centreCaseLibre2,COULP couleurJoueur);
+void afficher_cases_libres_pion_ig1(POINT centreCaseLibre1,POINT centreCaseLibre2,NUMCASE numCaseLibre1,NUMCASE numCaseLibre2,COULP couleurJoueur);
+void trouver_cases_libres_pion_ig1(POINT centrePionChoisi,POINT *centreCaseLibre1,POINT *centreCaseLibre2,NUMCASE *numCaseLibre1,NUMCASE *numCaseLibre2,COULP couleurJoueur);
+void effacer_cases_libres_choisies_ig1(POINT centreCaseLibre1,POINT centreCaseLibre2,NUMCASE numCaseLibre1,NUMCASE numCaseLibre2);
+
 
 
 void afficher_cases_libres_pion_ig2(POINT centrePionChoisi,COULP couleurJoueur);
@@ -380,18 +382,18 @@ void afficher_piece_dame_triangle_bas(POINT ptLosangeCentre)
 
 
 /* Vue */
-void afficher_piece_ig1(POINT ptLosangeCentre,PIECE piece)
+void afficher_piece_ig1(POINT ptLosangeCentre,int ligne,int colonne)
 {
 	COULEUR couleur;
-	couleur = convertir_joueur_couleur(piece.coulP);
+	couleur = convertir_joueur_couleur(plateau[colonne][ligne].coulP);
 	
-	if(piece.typeP == pion)
+	if(plateau[colonne][ligne].typeP == pion)
 	{
 		afficher_piece_triangle_haut(ptLosangeCentre,couleur);
 		afficher_piece_triangle_bas(ptLosangeCentre,couleur);
 	}
 		
-	else if(piece.typeP == dame)
+	else if(plateau[colonne][ligne].typeP == dame)
 	{
 		afficher_piece_dame_triangle_haut(ptLosangeCentre);
 		afficher_piece_dame_triangle_bas(ptLosangeCentre);
@@ -424,7 +426,7 @@ void afficher_plateau_ig1()
 				
 				if(plateau[j][i].coulP != aucune)
 				{
-					afficher_piece_ig1(ptCentreCase,plateau[j][i]);
+					afficher_piece_ig1(ptCentreCase,i,j);
 				}
 			}
 			
@@ -664,16 +666,17 @@ void changer_tour_interface_ig2(COULP couleurJoueur)
 /* Controleur */
 void tour_piece_ig1(COULP couleurJoueur)
 {
-	POINT centreCasePionChoisi,centreCaseDestination,centreCaseLibre1={50,50},centreCaseLibre2={50,50};
-	NUMCASE numCasePionChoisi,numCaseDestination;
+	POINT centreCasePionChoisi,centreCaseDestination,centreCaseLibre1={0,0},centreCaseLibre2={0,0};
+	NUMCASE numCasePionChoisi,numCaseDestination,numCaseLibre1={0,0},numCaseLibre2={0,0};
 	
 	do{
-		choisir_pion_valide(couleurJoueur,&centreCasePionChoisi,&numCasePionChoisi);
-		trouver_cases_libres_pion_ig1(centreCasePionChoisi,&centreCaseLibre1,&centreCaseLibre2,couleurJoueur);
-		choisir_destination_ig1(centreCasePionChoisi,&centreCaseDestination,&numCaseDestination);
-	}while( !(est_coup_valide_deplacement(numCasePionChoisi,numCaseDestination)) );
+		effacer_cases_libres_choisies_ig1(centreCaseLibre1,centreCaseLibre2,numCaseLibre1,numCaseLibre2);
 	
-	printf("coup valide\n");
+		choisir_pion_valide(couleurJoueur,&centreCasePionChoisi,&numCasePionChoisi);
+		trouver_cases_libres_pion_ig1(centreCasePionChoisi,&centreCaseLibre1,&centreCaseLibre2,&numCaseLibre1,&numCaseLibre2,couleurJoueur);
+		choisir_destination_ig1(centreCasePionChoisi,&centreCaseDestination,&numCaseDestination);
+
+	}while( !(est_coup_valide_deplacement(numCasePionChoisi,numCaseDestination)) );
 	
 	bouger_pion_choisi_ig1(numCasePionChoisi,numCaseDestination,centreCaseLibre1,centreCaseLibre2,couleurJoueur);
 	
@@ -830,14 +833,8 @@ void calculer_centre_cases_libres_pion_ig1(POINT centrePionChoisi,POINT *centreC
 
 
 /* Vue */
-void afficher_cases_libres_pion_ig1(POINT centreCaseLibre1,POINT centreCaseLibre2,COULP couleurJoueur)
+void afficher_cases_libres_pion_ig1(POINT centreCaseLibre1,POINT centreCaseLibre2,NUMCASE numCaseLibre1,NUMCASE numCaseLibre2,COULP couleurJoueur)
 {
-	NUMCASE numCaseLibre1,numCaseLibre2;
-	
-	numCaseLibre1=convertir_centreCase_en_numCase(centreCaseLibre1);
-	numCaseLibre2=convertir_centreCase_en_numCase(centreCaseLibre2);
-
-	
 	if( (numCaseLibre1.ligne<9) && (plateau[numCaseLibre1.colonne][numCaseLibre1.ligne].typeP == vide) ) //Eviter dessiner sur bord gauche
 	{
 		draw_fill_circle(centreCaseLibre1,LARG_CASE/2,COULEUR_CASE_LIBRE);
@@ -853,10 +850,25 @@ void afficher_cases_libres_pion_ig1(POINT centreCaseLibre1,POINT centreCaseLibre
 
 
 /* Controleur */
-void trouver_cases_libres_pion_ig1(POINT centrePionChoisi,POINT *centreCaseLibre1,POINT *centreCaseLibre2,COULP couleurJoueur)
+void trouver_cases_libres_pion_ig1(POINT centrePionChoisi,POINT *centreCaseLibre1,POINT *centreCaseLibre2,NUMCASE *numCaseLibre1,NUMCASE *numCaseLibre2,COULP couleurJoueur)
 {
 	calculer_centre_cases_libres_pion_ig1(centrePionChoisi,centreCaseLibre1,centreCaseLibre2,couleurJoueur);
-	afficher_cases_libres_pion_ig1(*centreCaseLibre1,*centreCaseLibre2,couleurJoueur);
+	
+	*numCaseLibre1=convertir_centreCase_en_numCase(*centreCaseLibre1);
+	*numCaseLibre2=convertir_centreCase_en_numCase(*centreCaseLibre2);
+
+	afficher_cases_libres_pion_ig1(*centreCaseLibre1,*centreCaseLibre2,*numCaseLibre1,*numCaseLibre2,couleurJoueur);
+}
+
+
+/* Vue */
+void effacer_cases_libres_choisies_ig1(POINT centreCaseLibre1,POINT centreCaseLibre2,NUMCASE numCaseLibre1,NUMCASE numCaseLibre2)
+{
+	if( plateau[numCaseLibre1.colonne][numCaseLibre1.ligne].typeP == vide )
+	{draw_fill_circle(centreCaseLibre1,LARG_CASE/2,COULEUR_CASE_JOUEURS);}
+	
+	if( plateau[numCaseLibre2.colonne][numCaseLibre2.ligne].typeP == vide )
+	{draw_fill_circle(centreCaseLibre2,LARG_CASE/2,COULEUR_CASE_JOUEURS);}
 }
 
 
@@ -955,7 +967,7 @@ void bouger_pion_choisi_ig1(NUMCASE numCaseOrig,NUMCASE numCaseDestination,POINT
 	changer_etat_case_destination(numCaseOrig,numCaseDestination,couleurJoueur);
 	changer_etat_case_orig(numCaseOrig);
 	
-	afficher_piece_ig1(ptCaseDestination,plateau[numCaseDestination.colonne][numCaseDestination.ligne]);
+	afficher_piece_ig1(ptCaseDestination,numCaseDestination.ligne,numCaseDestination.colonne);
 	
 	affiche_all();
 }
