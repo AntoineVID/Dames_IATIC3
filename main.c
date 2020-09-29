@@ -36,16 +36,16 @@ void initialiser_plateau()
 BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination)
 {
 	PIECE piece = plateau[origine.colonne][origine.ligne];
-	int deltaLig = destination.colonne - origine.colonne;
-	int deltaCol = destination.ligne - origine.ligne;
+	int deltaCol = destination.colonne - origine.colonne;
+	int deltaLig = destination.ligne - origine.ligne;
 
 	if(plateau[destination.colonne][destination.ligne].coulP == aucune)
 	{
 		if( ( deltaLig == 1 && deltaCol == 1 && (piece.typeP == dame || piece.coulP == coul1) )
 		||
-		( deltaLig == -1 && deltaCol == 1 && (piece.typeP == dame || piece.coulP == coul1) )
+		( deltaLig == 1 && deltaCol == -1 && (piece.typeP == dame || piece.coulP == coul1) )
 		||
-		( deltaLig == 1 && deltaCol == -1 && (piece.typeP == dame || piece.coulP == coul2) )
+		( deltaLig == -1 && deltaCol == 1 && (piece.typeP == dame || piece.coulP == coul2) )
 		||
 		( deltaLig == -1 && deltaCol == -1 && (piece.typeP == dame || piece.coulP == coul2) ))
 			return 1;
@@ -59,17 +59,17 @@ BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination)
 BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleurJoueur)
 {
 	PIECE piece = plateau[origine.colonne][origine.ligne];
-	int deltaLig = destination.colonne - origine.colonne;
-	int deltaCol = destination.ligne - origine.ligne;
+	int deltaCol = destination.colonne - origine.colonne;
+	int deltaLig = destination.ligne - origine.ligne;
 	COULP couleurEnnemi = (couleurJoueur == coul1) ? coul2 : coul1;
 	
 	if(plateau[destination.colonne][destination.ligne].coulP == aucune)
 	{
 		if( ( deltaLig == 2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.colonne - 1][destination.ligne - 1].coulP == couleurEnnemi )
 		||
-		( deltaLig == -2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.colonne + 1][destination.ligne - 1].coulP == couleurEnnemi )
+		( deltaLig == 2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.colonne + 1][destination.ligne - 1].coulP == couleurEnnemi )
 		||
-		( deltaLig == 2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.colonne - 1][destination.ligne + 1].coulP == couleurEnnemi )
+		( deltaLig == -2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.colonne - 1][destination.ligne + 1].coulP == couleurEnnemi )
 		||
 		( deltaLig == -2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.colonne + 1][destination.ligne + 1].coulP == couleurEnnemi ))
 			return 1;
@@ -152,6 +152,25 @@ void transformer_pion_en_dame(NUMCASE pion, COULP couleurJoueur)
 			plateau[pion.colonne][pion.ligne].typeP = dame;
 		}
 	}
+}
+
+BOOL est_joueur_bloque(COULP couleurJoueur)
+{
+	int i, j;
+	NUMCASE case_testee;
+
+	for(i = 0; i < 10; i++)
+	{
+		for(j = 0; j < 10; j++)
+		{
+			case_testee.ligne = j;
+			case_testee.colonne = i;
+			if(plateau[case_testee.colonne][case_testee.ligne].coulP == couleurJoueur && est_bloque(case_testee, couleurJoueur))
+				printf("%d %d ", case_testee.ligne, case_testee.colonne);
+		}
+		printf("\n");
+	}
+	return 0;
 }
 
 /*
@@ -279,6 +298,10 @@ int main()
 	{
 		afficher_plateau_dans_terminal();
 		jouer_dans_terminal(couleurJoueur, &nbrePionJ1, &nbrePionJ2);
+		/*if(est_joueur_bloque(coul1))
+				printf("Le joueur 2 a gagné !\n");
+		if(est_joueur_bloque(coul2))
+				printf("Le joueur 1 a gagné !\n");*/
 		couleurJoueur = (couleurJoueur == coul1) ? coul2 : coul1;
 	}
 	return(0);
