@@ -109,7 +109,7 @@ int donner_position_cases_libres_deplacement(NUMCASE depart)
 	return cases_libres;
 }
 
-BOOL donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur)
+int donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur)
 {
 	int cases_libres = 0;
 	NUMCASE arrivee;
