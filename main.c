@@ -80,7 +80,7 @@ BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleur
 		return 0;
 }
 
-BOOL est_bloque(NUMCASE depart)
+BOOL est_entoure(NUMCASE depart)
 {
 	NUMCASE arrivee;
 
@@ -105,6 +105,40 @@ BOOL est_bloque(NUMCASE depart)
 			return 0;
 	}
 	return 1;
+}
+
+BOOL ne_peut_attaquer(NUMCASE depart, COULP couleurJoueur)
+{
+	NUMCASE arrivee;
+
+	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul1)
+	{
+		arrivee.ligne = depart.ligne + 2;
+		arrivee.colonne = depart.colonne - 2;
+		if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+			return 0;
+		arrivee.colonne = depart.colonne + 2;
+		if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+			return 0;
+	}
+	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul2)
+	{
+		arrivee.ligne = depart.ligne - 2;
+		arrivee.colonne = depart.colonne - 2;
+		if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+			return 0;
+		arrivee.colonne = depart.colonne + 2;
+		if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+			return 0;
+	}
+	return 1;
+}
+
+BOOL est_bloque(NUMCASE depart, COULP couleurJoueur)
+{
+	if(est_entoure(depart) && ne_peut_attaquer(depart, couleurJoueur))
+			return 1;
+	return 0;
 }
 
 void transformer_pion_en_dame(NUMCASE pion, COULP couleurJoueur)
@@ -176,11 +210,11 @@ void jouer_dans_terminal(COULP couleurJoueur, int *nbreJ1, int *nbreJ2)
 		printf("La case %d %d est : ", clic1.colonne, clic1.ligne);
 		afficher_etat_case_dans_terminal(clic1.colonne, clic1.ligne);
 		printf("\n");
-		/*if(est_bloque(clic1))
+		if(est_bloque(clic1, couleurJoueur))
 		{
 			printf("Pion bloqué. Veuillez en choisir un autre.\n");
 		}
-		else */if( plateau[clic1.colonne][clic1.ligne].coulP  == couleurJoueur)
+		else if( plateau[clic1.colonne][clic1.ligne].coulP  == couleurJoueur)
 		{
 			printf("Vous pouvez jouer!\n");
 			printf("Le joueur %d joue. Coordonnées de destination :\n", couleurJoueur);
