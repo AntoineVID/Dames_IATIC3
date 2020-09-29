@@ -1,3 +1,4 @@
+/* CORBEIL Alex - VIDAL Antoine IATIC3 */
 #include "main.h"
 
 PIECE plateau[10][10];
@@ -10,7 +11,7 @@ void initialiser_plateau()
 	{
 		for(j = 0; j < 10; j++)
 		{
-			if( ( !(i % 2) && !(j % 2) && (j < 4) )
+			if( ( !(i % 2) && !(j % 2) && (j < 3) )
 			||
 			( (i % 2) && (j % 2) && (j < 4) ))
 			{
@@ -19,7 +20,7 @@ void initialiser_plateau()
 			}
 			else if( ( !(i % 2) && !(j % 2) && (j > 5) )
 			||
-			( (i % 2) && (j % 2) && (j > 5) ))
+			( (i % 2) && (j % 2) && (j > 6) ))
 			{
 				plateau[i][j].typeP = pion;
 				plateau[i][j].coulP = coul2;
@@ -80,8 +81,9 @@ BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleur
 		return 0;
 }
 
-BOOL est_entoure(NUMCASE depart)
+int donner_position_cases_libres_deplacement(NUMCASE depart)
 {
+	int cases_libres = 0;
 	NUMCASE arrivee;
 
 	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul1)
@@ -89,26 +91,27 @@ BOOL est_entoure(NUMCASE depart)
 		arrivee.ligne = depart.ligne + 1;
 		arrivee.colonne = depart.colonne - 1;
 		if(depart.colonne > 0 && est_coup_valide_deplacement(depart, arrivee))
-			return 0;
+			cases_libres += 1;
 		arrivee.colonne = depart.colonne + 1;
 		if(depart.colonne < 9 && est_coup_valide_deplacement(depart, arrivee))
-			return 0;
+			cases_libres += 2;
 	}
 	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul2)
 	{
 		arrivee.ligne = depart.ligne - 1;
 		arrivee.colonne = depart.colonne - 1;
 		if(depart.colonne > 0 && est_coup_valide_deplacement(depart, arrivee))
-			return 0;
+			cases_libres += 4;
 		arrivee.colonne = depart.colonne + 1;
 		if(depart.colonne < 9 && est_coup_valide_deplacement(depart, arrivee))
-			return 0;
+			cases_libres += 8;
 	}
-	return 1;
+	return cases_libres;
 }
 
-BOOL ne_peut_attaquer(NUMCASE depart, COULP couleurJoueur)
+BOOL donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur)
 {
+	int cases_libres = 0;
 	NUMCASE arrivee;
 
 	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul1)
@@ -116,27 +119,27 @@ BOOL ne_peut_attaquer(NUMCASE depart, COULP couleurJoueur)
 		arrivee.ligne = depart.ligne + 2;
 		arrivee.colonne = depart.colonne - 2;
 		if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			return 0;
+			cases_libres += 1;
 		arrivee.colonne = depart.colonne + 2;
 		if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			return 0;
+			cases_libres += 2;
 	}
 	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul2)
 	{
 		arrivee.ligne = depart.ligne - 2;
 		arrivee.colonne = depart.colonne - 2;
 		if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			return 0;
+			cases_libres += 4;
 		arrivee.colonne = depart.colonne + 2;
 		if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			return 0;
+			cases_libres += 8;
 	}
-	return 1;
+	return cases_libres;
 }
 
 BOOL est_bloque(NUMCASE depart, COULP couleurJoueur)
 {
-	if(est_entoure(depart) && ne_peut_attaquer(depart, couleurJoueur))
+	if( !donner_position_cases_libres_deplacement(depart) && !donner_position_cases_libres_attaque(depart, couleurJoueur))
 			return 1;
 	return 0;
 }
@@ -154,11 +157,12 @@ void transformer_pion_en_dame(NUMCASE pion, COULP couleurJoueur)
 	}
 }
 
-BOOL est_joueur_bloque(COULP couleurJoueur)
+BOOL est_joueur_bloque(COULP couleurJoueur, int nbrePionRestant)
 {
-	int i, j;
+	int nbre_cases_bloquees, i, j;
 	NUMCASE case_testee;
 
+	nbre_cases_bloquees = 0;
 	for(i = 0; i < 10; i++)
 	{
 		for(j = 0; j < 10; j++)
@@ -166,9 +170,12 @@ BOOL est_joueur_bloque(COULP couleurJoueur)
 			case_testee.ligne = j;
 			case_testee.colonne = i;
 			if(plateau[case_testee.colonne][case_testee.ligne].coulP == couleurJoueur && est_bloque(case_testee, couleurJoueur))
-				printf("%d %d ", case_testee.ligne, case_testee.colonne);
+			{
+				nbre_cases_bloquees++;
+				if(nbre_cases_bloquees == nbrePionRestant)
+					return 1;
+			}
 		}
-		printf("\n");
 	}
 	return 0;
 }
@@ -218,12 +225,12 @@ void afficher_plateau_dans_terminal()
 	printf("   0 1 2 3 4 5 6 7 8 9\n");
 }
 
-void jouer_dans_terminal(COULP couleurJoueur, int *nbreJ1, int *nbreJ2)
+void jouer_dans_terminal(COULP couleurJoueur, int *nbrePionJ1, int *nbrePionJ2)
 {
 	NUMCASE clic1, clic2;
 	do
 	{
-		printf("J1 : %d pions | J2 : %d pions\n", *nbreJ1, *nbreJ2);
+		printf("J1 : %d pions | J2 : %d pions\n", *nbrePionJ1, *nbrePionJ2);
 		printf("Le joueur %d joue. Coordonnées du pion à déplacer :\n", couleurJoueur);
 		scanf("%d %d", &clic1.colonne, &clic1.ligne);
 		printf("La case %d %d est : ", clic1.colonne, clic1.ligne);
@@ -255,19 +262,19 @@ void jouer_dans_terminal(COULP couleurJoueur, int *nbreJ1, int *nbreJ2)
 				transformer_pion_en_dame(clic2, couleurJoueur);
 				if(couleurJoueur == coul1)
 				{
-					*nbreJ2 = *nbreJ2 - 1;
-					if(*nbreJ2 == 0)
+					*nbrePionJ2 = *nbrePionJ2 - 1;
+					if(*nbrePionJ2 == 0)
 					{
-						printf("Le J1 a gagné !\n");
+						printf("Le joueur 2 n'a plus de pion. Le joueur 1 a gagné !\n");
 						exit(0);
 					}
 				}
 				else
 				{
-					*nbreJ1 = *nbreJ1 - 1;
-					if(*nbreJ1 == 0)
+					*nbrePionJ1 = *nbrePionJ1 - 1;
+					if(*nbrePionJ1 == 0)
 					{
-						printf("Le J2 a gagné !\n");
+						printf("Le joueur 1 n'a plus de pion. Le joueur 2 a gagné !\n");
 						exit(0);
 					}
 				}
@@ -298,10 +305,16 @@ int main()
 	{
 		afficher_plateau_dans_terminal();
 		jouer_dans_terminal(couleurJoueur, &nbrePionJ1, &nbrePionJ2);
-		/*if(est_joueur_bloque(coul1))
-				printf("Le joueur 2 a gagné !\n");
-		if(est_joueur_bloque(coul2))
-				printf("Le joueur 1 a gagné !\n");*/
+		if(est_joueur_bloque(coul1, nbrePionJ1))
+		{
+				printf("Le joueur 1 est bloqué. Le joueur 2 a gagné !\n");
+				break;
+		}
+		if(est_joueur_bloque(coul2, nbrePionJ2))
+		{
+				printf("Le joueur 2 est bloqué. Le joueur 1 a gagné !\n");
+				break;
+		}
 		couleurJoueur = (couleurJoueur == coul1) ? coul2 : coul1;
 	}
 	return(0);
