@@ -1119,12 +1119,8 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 				else
 					return;
 			}
-			else
-			{
-				printf("Coup non valide.\n Recommencez.\n");
-				if( !multiAttaque)
-					break;
-			}
+			else if( !multiAttaque)
+				break;
 		}while(1);
 	}while(1);
 	affiche_all();
