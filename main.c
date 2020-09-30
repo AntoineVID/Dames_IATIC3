@@ -208,6 +208,24 @@ int tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur)
 	return 0;
 }
 
+void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur)
+{
+	plateau[depart.colonne][depart.ligne].coulP = aucune;
+	plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
+	plateau[arrivee.colonne][arrivee.ligne].coulP = couleurJoueur;
+	transformer_pion_en_dame(arrivee, couleurJoueur);
+}
+
+void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur, int *nbrePionJoueur)
+{
+	plateau[depart.colonne][depart.ligne].coulP = aucune;
+	plateau[(depart.colonne + arrivee.colonne) / 2][(depart.ligne + arrivee.ligne) / 2].coulP = aucune;
+	plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
+	plateau[arrivee.colonne][arrivee.ligne].coulP = couleurJoueur;
+	transformer_pion_en_dame(arrivee, couleurJoueur);
+	*nbrePionJoueur = *nbrePionJoueur - 1;
+}
+
 /*
  * Pour tester dans le terminal
  */
@@ -253,7 +271,7 @@ void afficher_plateau_dans_terminal()
 	printf("   0 1 2 3 4 5 6 7 8 9\n");
 }
 
-void jouer_dans_terminal(COULP couleurJoueur, int *nbrePionJ1, int *nbrePionJ2)
+void jouer_dans_terminal(COULP couleurJoueur, int *nbrePionJoueur)
 {
 	char choix;
 	BOOL multiAttaque = 0;
@@ -261,7 +279,6 @@ void jouer_dans_terminal(COULP couleurJoueur, int *nbrePionJ1, int *nbrePionJ2)
 	do
 	{
 		afficher_plateau_dans_terminal();
-		printf("J1 : %d pions | J2 : %d pions\n", *nbrePionJ1, *nbrePionJ2);
 		printf("Le joueur %d joue. Coordonnées du pion à déplacer :\n", couleurJoueur);
 		scanf("%d %d", &depart.colonne, &depart.ligne);
 		printf("\n");
@@ -279,23 +296,12 @@ void jouer_dans_terminal(COULP couleurJoueur, int *nbrePionJ1, int *nbrePionJ2)
 				scanf("%d %d", &arrivee.colonne, &arrivee.ligne);
 				if( !multiAttaque && est_coup_valide_deplacement(depart, arrivee))
 				{
-					plateau[depart.colonne][depart.ligne].coulP = aucune;
-					plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
-					plateau[arrivee.colonne][arrivee.ligne].coulP = couleurJoueur;
-					transformer_pion_en_dame(arrivee, couleurJoueur);
+					effectuer_deplacement_dans_tableau_logique(depart, arrivee, couleurJoueur);					
 					return;
 				}
 				if(est_coup_valide_attaque(depart, arrivee, couleurJoueur))
 				{
-					plateau[depart.colonne][depart.ligne].coulP = aucune;
-					plateau[(depart.colonne + arrivee.colonne) / 2][(depart.ligne + arrivee.ligne) / 2].coulP = aucune;
-					plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
-					plateau[arrivee.colonne][arrivee.ligne].coulP = couleurJoueur;
-					transformer_pion_en_dame(arrivee, couleurJoueur);
-					if(couleurJoueur == coul1)
-						*nbrePionJ2 = *nbrePionJ2 - 1;
-					else
-						*nbrePionJ1 = *nbrePionJ1 - 1;
+					effectuer_attaque_dans_tableau_logique(depart, arrivee, couleurJoueur, nbrePionJoueur);
 					if(donner_position_cases_libres_attaque(arrivee, couleurJoueur))
 					{
 						printf("Voulez-vous continuer le tour en attaquant de nouveau ? (o/n)\n");
@@ -351,7 +357,7 @@ int main()
 		printf("Le joueur %d n'a plus de pion. Le joueur %d a gagné !\n", couleurJoueur, (couleurJoueur == coul1) ? coul2 : coul1);
 		break;
 		}
-		jouer_dans_terminal(couleurJoueur, &nbrePionJ1, &nbrePionJ2);
+		jouer_dans_terminal(couleurJoueur, &nbrePionJoueur);
 		couleurJoueur = (couleurJoueur == coul1) ? coul2 : coul1;
 	}
 	return(0);
