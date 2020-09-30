@@ -208,20 +208,28 @@ int tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur)
 	return 0;
 }
 
+void changer_etat_case_tableau_logique(NUMCASE numCase, TYPEP type, COULP coul)
+{
+	plateau[numCase.colonne][numCase.ligne].typeP = type;
+	plateau[numCase.colonne][numCase.ligne].coulP = coul;
+}
+
 void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur)
 {
-	plateau[depart.colonne][depart.ligne].coulP = aucune;
-	plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
-	plateau[arrivee.colonne][arrivee.ligne].coulP = couleurJoueur;
+	changer_etat_case_tableau_logique(arrivee, plateau[depart.colonne][depart.ligne].typeP, couleurJoueur);
+	changer_etat_case_tableau_logique(depart, vide, aucune);
 	transformer_pion_en_dame(arrivee, couleurJoueur);
 }
 
 void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur, int *nbrePionJoueur)
 {
-	plateau[depart.colonne][depart.ligne].coulP = aucune;
-	plateau[(depart.colonne + arrivee.colonne) / 2][(depart.ligne + arrivee.ligne) / 2].coulP = aucune;
-	plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
-	plateau[arrivee.colonne][arrivee.ligne].coulP = couleurJoueur;
+	NUMCASE milieu;
+	milieu.ligne = (depart.ligne + arrivee.ligne) / 2;
+	milieu.colonne = (depart.colonne + arrivee.colonne) / 2;
+	
+	changer_etat_case_tableau_logique(arrivee, plateau[depart.colonne][depart.ligne].typeP, couleurJoueur);
+	changer_etat_case_tableau_logique(milieu, vide, aucune);
+	changer_etat_case_tableau_logique(depart, vide, aucune);
 	transformer_pion_en_dame(arrivee, couleurJoueur);
 	*nbrePionJoueur = *nbrePionJoueur - 1;
 }
@@ -250,7 +258,6 @@ void afficher_etat_case_dans_terminal(int x, int y)
 		else
 			printf("B");
 	}
-
 }
 
 void afficher_plateau_dans_terminal()
