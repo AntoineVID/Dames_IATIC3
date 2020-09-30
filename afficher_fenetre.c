@@ -13,16 +13,21 @@
 
 void initialiser_plateau();
 
-int donner_position_cases_libres_deplacement(NUMCASE depart);
 BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination);
-
-int donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur);
 BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleurJoueur);
 
-BOOL est_bloque(NUMCASE depart, COULP couleurJoueur);
+int donner_position_cases_libres_deplacement(NUMCASE depart);
+int donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur);
 
-void changer_etat_case_orig(NUMCASE numCaseOrig);
-void changer_etat_case_destination(NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur);
+BOOL est_bloque(NUMCASE depart, COULP couleurJoueur);
+void transformer_pion_en_dame(NUMCASE pion, COULP couleurJoueur);
+
+BOOL est_joueur_bloque(COULP couleurJoueur, int nbrePionJoueur);
+int tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur);
+
+void changer_etat_case_tableau_logique(NUMCASE numCase, TYPEP type, COULP coul);
+void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur);
+void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur, int *nbrePionJoueur);
 
 
 /* ----- VUE ----- */
@@ -44,7 +49,7 @@ void afficher_plateau_ig1();
 //Ig2
 void afficher_piece_rond(POINT ptRondCentre,COULEUR couleur);
 void afficher_piece_rond_dame(POINT ptRondCentre);
-void afficher_piece_ig2(POINT ptRondCentre,PIECE piece);
+void afficher_piece_ig2(POINT ptRondCentre,int ligne,int colonne);
 void afficher_case_ig2(POINT ptbgCase,POINT pthdCase,COULEUR couleur);
 void afficher_plateau_ig2();
 
@@ -76,9 +81,9 @@ POINT convertir_numCase_en_centreCase(NUMCASE numcase);
 
 void choisir_pion_valide(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi);
 
-void afficher_cases_libres_ig1(POINT centrePionChoisi,int positionCasesLibres);
-void trouver_cases_libres_ig1(POINT centrePionChoisi,NUMCASE numCasePionchoisi,int *positionCasesLibres);
-void effacer_cases_libres_choisies_ig1(POINT centrePionChoisi,int positionCasesLibres);
+void afficher_cases_libres_ig1(POINT centrePionChoisi,int positionCasesLibres,int positionCasesLibresAttaque);
+void trouver_cases_libres_ig1(POINT centrePionChoisi,NUMCASE numCasePionchoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque);
+void effacer_cases_libres_choisies_ig1(POINT centrePionChoisi,int positionCasesLibres,int positionCasesLibresAttaque);
 
 //~ void afficher_cases_libres_ig2(POINT centrePionChoisi,int positionCasesLibres);
 //~ void trouver_cases_libres_ig2(POINT centrePionChoisi,NUMCASE numCasePionchoisi,int *positionCasesLibres);
@@ -92,7 +97,9 @@ void choisir_destination_ig1(POINT centreCasePionChoisi,POINT *centreCaseDestina
 
 /* Bouger Pion */
 void effacer_piece_case_orig_ig1(POINT centreCasePionChoisi);
-void bouger_pion_choisi_ig1(POINT centreCasePionChoisi,POINT centreCaseDestination,NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur,int positionCasesLibres);
+void enlever_pion_qui_subit_attaque_ig1(POINT centreCasePionChoisi,int positionCasesLibresAttaque);
+void bouger_pion_choisi_ig1(POINT centreCasePionChoisi,POINT centreCaseDestination,NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur,int positionCasesLibres,int positionCasesLibresAttaque);
+
 
 
 /* Ecran titre */
@@ -128,7 +135,7 @@ void initialiser_plateau()
 	{
 		for(j = 0; j < 10; j++)
 		{
-			if( ( !(i % 2) && !(j % 2) && (j < 4) )
+			if( ( !(i % 2) && !(j % 2) && (j < 3) )
 			||
 			( (i % 2) && (j % 2) && (j < 4) ))
 			{
@@ -137,7 +144,7 @@ void initialiser_plateau()
 			}
 			else if( ( !(i % 2) && !(j % 2) && (j > 5) )
 			||
-			( (i % 2) && (j % 2) && (j > 5) ))
+			( (i % 2) && (j % 2) && (j > 6) ))
 			{
 				plateau[i][j].typeP = pion;
 				plateau[i][j].coulP = coul2;
@@ -151,8 +158,53 @@ void initialiser_plateau()
 	}
 }
 
+BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination)
+{
+	PIECE piece = plateau[origine.colonne][origine.ligne];
+	int deltaCol = destination.colonne - origine.colonne;
+	int deltaLig = destination.ligne - origine.ligne;
 
-/* Modele */
+	if(plateau[destination.colonne][destination.ligne].coulP == aucune)
+	{
+		if( ( deltaLig == 1 && deltaCol == 1 && (piece.typeP == dame || piece.coulP == coul1) )
+		||
+		( deltaLig == 1 && deltaCol == -1 && (piece.typeP == dame || piece.coulP == coul1) )
+		||
+		( deltaLig == -1 && deltaCol == 1 && (piece.typeP == dame || piece.coulP == coul2) )
+		||
+		( deltaLig == -1 && deltaCol == -1 && (piece.typeP == dame || piece.coulP == coul2) ))
+			return 1;
+		else
+			return 0;
+	}
+	else
+		return 0;
+}
+
+BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleurJoueur)
+{
+	PIECE piece = plateau[origine.colonne][origine.ligne];
+	int deltaCol = destination.colonne - origine.colonne;
+	int deltaLig = destination.ligne - origine.ligne;
+	COULP couleurEnnemi = (couleurJoueur == coul1) ? coul2 : coul1;
+	
+	if(plateau[destination.colonne][destination.ligne].coulP == aucune)
+	{
+		if( ( deltaLig == 2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.colonne - 1][destination.ligne - 1].coulP == couleurEnnemi )
+		||
+		( deltaLig == 2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.colonne + 1][destination.ligne - 1].coulP == couleurEnnemi )
+		||
+		( deltaLig == -2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.colonne - 1][destination.ligne + 1].coulP == couleurEnnemi )
+		||
+		( deltaLig == -2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.colonne + 1][destination.ligne + 1].coulP == couleurEnnemi ))
+			return 1;
+		else
+			return 0;
+	}
+	else
+		return 0;
+}
+
 int donner_position_cases_libres_deplacement(NUMCASE depart)
 {
 	int cases_libres = 0;
@@ -189,89 +241,41 @@ int donner_position_cases_libres_deplacement(NUMCASE depart)
 	return cases_libres;
 }
 
-
-/* Modele */
-BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination)
-{
-	PIECE piece = plateau[origine.colonne][origine.ligne];
-	int deltaCol = destination.colonne - origine.colonne;
-	int deltaLig = destination.ligne - origine.ligne;
-
-	if(plateau[destination.colonne][destination.ligne].coulP == aucune)
-	{
-		if( ( deltaLig == 1 && deltaCol == 1 && (piece.typeP == dame || piece.coulP == coul1) )
-		||
-		( deltaLig == 1 && deltaCol == -1 && (piece.typeP == dame || piece.coulP == coul1) )
-		||
-		( deltaLig == -1 && deltaCol == 1 && (piece.typeP == dame || piece.coulP == coul2) )
-		||
-		( deltaLig == -1 && deltaCol == -1 && (piece.typeP == dame || piece.coulP == coul2) ))
-			return 1;
-		else
-			return 0;
-	}
-	else
-		return 0;
-}
-
-
-/* Modele */
 int donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur)
 {
 	int cases_libres = 0;
 	NUMCASE arrivee;
-
-	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul1)
+	if(depart.ligne < 8)
 	{
-		arrivee.ligne = depart.ligne + 2;
-		arrivee.colonne = depart.colonne - 2;
-		if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			cases_libres += 1;
-		arrivee.colonne = depart.colonne + 2;
-		if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			cases_libres += 2;
+		if( ( plateau[depart.colonne][depart.ligne].typeP == dame )
+		|| ( plateau[depart.colonne][depart.ligne].coulP == coul1 ))
+		{
+			arrivee.ligne = depart.ligne + 2;
+			arrivee.colonne = depart.colonne - 2;
+			if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+				cases_libres += 1;
+			arrivee.colonne = depart.colonne + 2;
+			if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+				cases_libres += 2;
+		}
 	}
-	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul2)
+	if(depart.ligne > 1)
 	{
-		arrivee.ligne = depart.ligne - 2;
-		arrivee.colonne = depart.colonne - 2;
-		if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			cases_libres += 4;
-		arrivee.colonne = depart.colonne + 2;
-		if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			cases_libres += 8;
+		if( ( plateau[depart.colonne][depart.ligne].typeP == dame )
+		|| ( plateau[depart.colonne][depart.ligne].coulP == coul2 ))
+		{
+			arrivee.ligne = depart.ligne - 2;
+			arrivee.colonne = depart.colonne - 2;
+			if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+				cases_libres += 4;
+			arrivee.colonne = depart.colonne + 2;
+			if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+				cases_libres += 8;
+		}
 	}
 	return cases_libres;
 }
 
-
-/* Modele */
-BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleurJoueur)
-{
-	PIECE piece = plateau[origine.colonne][origine.ligne];
-	int deltaCol = destination.colonne - origine.colonne;
-	int deltaLig = destination.ligne - origine.ligne;
-	COULP couleurEnnemi = (couleurJoueur == coul1) ? coul2 : coul1;
-	
-	if(plateau[destination.colonne][destination.ligne].coulP == aucune)
-	{
-		if( ( deltaLig == 2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.colonne - 1][destination.ligne - 1].coulP == couleurEnnemi )
-		||
-		( deltaLig == 2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.colonne + 1][destination.ligne - 1].coulP == couleurEnnemi )
-		||
-		( deltaLig == -2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.colonne - 1][destination.ligne + 1].coulP == couleurEnnemi )
-		||
-		( deltaLig == -2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.colonne + 1][destination.ligne + 1].coulP == couleurEnnemi ))
-			return 1;
-		else
-			return 0;
-	}
-	else
-		return 0;
-}
-
-
-/* Modele */
 BOOL est_bloque(NUMCASE depart, COULP couleurJoueur)
 {
 	if( !donner_position_cases_libres_deplacement(depart) && !donner_position_cases_libres_attaque(depart, couleurJoueur))
@@ -279,20 +283,79 @@ BOOL est_bloque(NUMCASE depart, COULP couleurJoueur)
 	return 0;
 }
 
-
-/* Modele */
-void changer_etat_case_orig(NUMCASE numCaseOrig)
+void transformer_pion_en_dame(NUMCASE pion, COULP couleurJoueur)
 {
-	plateau[numCaseOrig.colonne][numCaseOrig.ligne].typeP=vide;
-	plateau[numCaseOrig.colonne][numCaseOrig.ligne].coulP=aucune;
+	if(plateau[pion.colonne][pion.ligne].typeP != dame)
+	{
+		if( ( pion.ligne == 9 )
+		||
+		( pion.ligne == 0 ))
+		{
+			plateau[pion.colonne][pion.ligne].typeP = dame;
+		}
+	}
 }
 
-
-/* Modele */
-void changer_etat_case_destination(NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur)
+BOOL est_joueur_bloque(COULP couleurJoueur, int nbrePionJoueur)
 {
-	plateau[numCaseDestination.colonne][numCaseDestination.ligne].typeP=plateau[numCaseOrig.colonne][numCaseOrig.ligne].typeP;
-	plateau[numCaseDestination.colonne][numCaseDestination.ligne].coulP=couleurJoueur;
+	int nbre_cases_bloquees, i, j;
+	NUMCASE case_testee;
+
+	nbre_cases_bloquees = 0;
+	for(i = 0; i < 10; i++)
+	{
+		for(j = 0; j < 10; j++)
+		{
+			case_testee.ligne = j;
+			case_testee.colonne = i;
+			if(plateau[case_testee.colonne][case_testee.ligne].coulP == couleurJoueur && est_bloque(case_testee, couleurJoueur))
+			{
+				nbre_cases_bloquees++;
+				if(nbre_cases_bloquees == nbrePionJoueur)
+					return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+int tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur)
+{
+	if(est_joueur_bloque(couleurJoueur, nbrePionJoueur))
+	{
+		return 1;
+	}
+	if(nbrePionJoueur == 0)
+	{
+		return 2;
+	}
+	return 0;
+}
+
+void changer_etat_case_tableau_logique(NUMCASE numCase, TYPEP type, COULP coul)
+{
+	plateau[numCase.colonne][numCase.ligne].typeP = type;
+	plateau[numCase.colonne][numCase.ligne].coulP = coul;
+}
+
+void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur)
+{
+	changer_etat_case_tableau_logique(arrivee, plateau[depart.colonne][depart.ligne].typeP, couleurJoueur);
+	changer_etat_case_tableau_logique(depart, vide, aucune);
+	transformer_pion_en_dame(arrivee, couleurJoueur);
+}
+
+void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur, int *nbrePionJoueur)
+{
+	NUMCASE milieu;
+	milieu.ligne = (depart.ligne + arrivee.ligne) / 2;
+	milieu.colonne = (depart.colonne + arrivee.colonne) / 2;
+	
+	changer_etat_case_tableau_logique(arrivee, plateau[depart.colonne][depart.ligne].typeP, couleurJoueur);
+	changer_etat_case_tableau_logique(milieu, vide, aucune);
+	changer_etat_case_tableau_logique(depart, vide, aucune);
+	transformer_pion_en_dame(arrivee, couleurJoueur);
+	*nbrePionJoueur = *nbrePionJoueur - 1;
 }
 
 
@@ -364,12 +427,12 @@ void afficher_piece_dame_triangle_haut(POINT ptLosangeCentre)
 	POINT ptLosangeDameHaut,ptLosangeDameDroit,ptLosangeDameGauche;
 	
 	ptLosangeDameHaut.x=ptLosangeCentre.x;
-	ptLosangeDameHaut.y=ptLosangeCentre.y+0.4*LONGUEUR_PIECE;
+	ptLosangeDameHaut.y=ptLosangeCentre.y+0.3*LONGUEUR_PIECE;
 	
-	ptLosangeDameDroit.x=ptLosangeCentre.x-0.8*(LONGUEUR_PIECE/2);
+	ptLosangeDameDroit.x=ptLosangeCentre.x-0.6*(LONGUEUR_PIECE/2);
 	ptLosangeDameDroit.y=ptLosangeCentre.y;
 	
-	ptLosangeDameGauche.x=ptLosangeCentre.x+0.8*(LONGUEUR_PIECE/2);
+	ptLosangeDameGauche.x=ptLosangeCentre.x+0.6*(LONGUEUR_PIECE/2);
 	ptLosangeDameGauche.y=ptLosangeCentre.y;
 	
 	draw_fill_triangle(ptLosangeDameHaut,ptLosangeDameDroit,ptLosangeDameGauche,COULEUR_DAME);
@@ -382,12 +445,12 @@ void afficher_piece_dame_triangle_bas(POINT ptLosangeCentre)
 	POINT ptLosangeDameBas,ptLosangeDameDroit,ptLosangeDameGauche;
 	
 	ptLosangeDameBas.x=ptLosangeCentre.x;
-	ptLosangeDameBas.y=ptLosangeCentre.y-0.4*LONGUEUR_PIECE;
+	ptLosangeDameBas.y=ptLosangeCentre.y-0.3*LONGUEUR_PIECE;
 	
-	ptLosangeDameDroit.x=ptLosangeCentre.x-0.8*(LONGUEUR_PIECE/2);
+	ptLosangeDameDroit.x=ptLosangeCentre.x-0.6*(LONGUEUR_PIECE/2);
 	ptLosangeDameDroit.y=ptLosangeCentre.y;
 	
-	ptLosangeDameGauche.x=ptLosangeCentre.x+0.8*(LONGUEUR_PIECE/2);
+	ptLosangeDameGauche.x=ptLosangeCentre.x+0.6*(LONGUEUR_PIECE/2);
 	ptLosangeDameGauche.y=ptLosangeCentre.y;
 	
 	draw_fill_triangle(ptLosangeDameBas,ptLosangeDameDroit,ptLosangeDameGauche,COULEUR_DAME);
@@ -400,13 +463,13 @@ void afficher_piece_ig1(POINT ptLosangeCentre,int ligne,int colonne)
 	COULEUR couleur;
 	couleur = convertir_joueur_couleur(plateau[colonne][ligne].coulP);
 	
-	if(plateau[colonne][ligne].typeP == pion)
+	if( (plateau[colonne][ligne].typeP == pion) || (plateau[colonne][ligne].typeP == dame) )
 	{
 		afficher_piece_triangle_haut(ptLosangeCentre,couleur);
 		afficher_piece_triangle_bas(ptLosangeCentre,couleur);
 	}
 		
-	else if(plateau[colonne][ligne].typeP == dame)
+	if(plateau[colonne][ligne].typeP == dame)
 	{
 		afficher_piece_dame_triangle_haut(ptLosangeCentre);
 		afficher_piece_dame_triangle_bas(ptLosangeCentre);
@@ -468,23 +531,23 @@ void afficher_piece_rond(POINT ptRondCentre,COULEUR couleur)
 /* Vue */
 void afficher_piece_rond_dame(POINT ptRondCentre)
 {
-	draw_fill_circle(ptRondCentre,LONGUEUR_PIECE/2.5,COULEUR_DAME);
+	draw_fill_circle(ptRondCentre,LONGUEUR_PIECE/3,COULEUR_DAME);
 }
 
 
 /* Vue */
-void afficher_piece_ig2(POINT ptRondCentre,PIECE piece)
+void afficher_piece_ig2(POINT ptRondCentre,int ligne,int colonne)
 {
 	COULEUR couleur;
-	couleur = convertir_joueur_couleur(piece.coulP);
+	couleur = convertir_joueur_couleur(plateau[colonne][ligne].coulP);
 	
-	if(piece.typeP == pion)
+	if( (plateau[colonne][ligne].typeP == pion) || (plateau[colonne][ligne].typeP == dame) )
 	{
 		afficher_piece_rond(ptRondCentre,couleur);
 	}
-	
-	else if(piece.typeP == dame)
-	{	
+		
+	if(plateau[colonne][ligne].typeP == dame)
+	{
 		afficher_piece_rond_dame(ptRondCentre);
 	}
 }
@@ -518,7 +581,7 @@ void afficher_plateau_ig2()
 				
 				if(plateau[j][i].coulP != aucune)
 				{
-					afficher_piece_ig2(ptCentreCase,plateau[j][i]); //MAUVAIS CAR SE BASE SUR LE PLATEAU DE IG1
+					afficher_piece_ig2(ptCentreCase,i,j); //MAUVAIS CAR SE BASE SUR LE PLATEAU DE IG1
 				}
 			}
 			
@@ -681,18 +744,18 @@ void tour_piece_ig1(COULP couleurJoueur)
 {
 	POINT centreCasePionChoisi,centreCaseDestination;
 	NUMCASE numCasePionChoisi,numCaseDestination;
-	int positionCasesLibres=0;
+	int positionCasesLibres=0,positionCasesLibresAttaque=0;
 	
 	do{
 		
-		effacer_cases_libres_choisies_ig1(centreCasePionChoisi,positionCasesLibres);
+		effacer_cases_libres_choisies_ig1(centreCasePionChoisi,positionCasesLibres,positionCasesLibresAttaque);
 		choisir_pion_valide(couleurJoueur,&centreCasePionChoisi,&numCasePionChoisi);
-		trouver_cases_libres_ig1(centreCasePionChoisi,numCasePionChoisi,&positionCasesLibres);
+		trouver_cases_libres_ig1(centreCasePionChoisi,numCasePionChoisi,couleurJoueur,&positionCasesLibres,&positionCasesLibresAttaque);
 		choisir_destination_ig1(centreCasePionChoisi,&centreCaseDestination,&numCaseDestination);
 
-	}while( !(est_coup_valide_deplacement(numCasePionChoisi,numCaseDestination)) );
+	}while( (!(est_coup_valide_deplacement(numCasePionChoisi,numCaseDestination))) && (!(est_coup_valide_attaque(numCasePionChoisi,numCaseDestination,couleurJoueur))) );
 	
-	bouger_pion_choisi_ig1(centreCasePionChoisi,centreCaseDestination,numCasePionChoisi,numCaseDestination,couleurJoueur,positionCasesLibres);
+	bouger_pion_choisi_ig1(centreCasePionChoisi,centreCaseDestination,numCasePionChoisi,numCaseDestination,couleurJoueur,positionCasesLibres,positionCasesLibresAttaque);
 	
 	affiche_all();
 }
@@ -816,10 +879,14 @@ void choisir_pion_valide(COULP couleurPionValide,POINT *centreCasePionChoisi,NUM
 
 
 /* Vue */
-void afficher_cases_libres_ig1(POINT centrePionChoisi,int positionCasesLibres)
+void afficher_cases_libres_ig1(POINT centrePionChoisi,int positionCasesLibres,int positionCasesLibresAttaque)
 {
 	POINT centreCaseLibre;
+
+	printf("libres %d\n",positionCasesLibres);	
+	printf("attaque %d\n",positionCasesLibresAttaque);
 	
+	/* Cases Normales */
 	if(positionCasesLibres%2>0) //rond haut gauche
 	{
 		centreCaseLibre.x=centrePionChoisi.x-LARG_CASE;
@@ -848,36 +915,56 @@ void afficher_cases_libres_ig1(POINT centrePionChoisi,int positionCasesLibres)
 		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_LIBRE);	
 	}
 	
-	/*
-	if( (numCaseLibre1.ligne<9) && (plateau[numCaseLibre1.colonne][numCaseLibre1.ligne].typeP == vide) ) //Eviter dessiner sur bord gauche
+	
+	/* Cases Attaque */
+	if(positionCasesLibresAttaque%2>0) //rond haut gauche
 	{
-		draw_fill_circle(centreCaseLibre1,LARG_CASE/2,COULEUR_CASE_LIBRE);
+		centreCaseLibre.x=centrePionChoisi.x-LARG_CASE*2;
+		centreCaseLibre.y=centrePionChoisi.y+LARG_CASE*2;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_LIBRE);
 	}
 	
-	if( (numCaseLibre2.ligne>0) && (plateau[numCaseLibre2.colonne][numCaseLibre2.ligne].typeP == vide) ) //Eviter dessiner sur bord droit
+	if(positionCasesLibresAttaque%4>1) //rond haut droite
 	{
-		draw_fill_circle(centreCaseLibre2,LARG_CASE/2,COULEUR_CASE_LIBRE);
+		centreCaseLibre.x=centrePionChoisi.x+LARG_CASE*2;
+		centreCaseLibre.y=centrePionChoisi.y+LARG_CASE*2;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_LIBRE);
 	}
-	*/
+	
+	if(positionCasesLibresAttaque%8>3) //rond bas gauche
+	{
+		centreCaseLibre.x=centrePionChoisi.x-LARG_CASE*2;
+		centreCaseLibre.y=centrePionChoisi.y-LARG_CASE*2;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_LIBRE);	
+	}
+	
+	if(positionCasesLibresAttaque%16>7) //rond bas droite
+	{
+		centreCaseLibre.x=centrePionChoisi.x+LARG_CASE*2;
+		centreCaseLibre.y=centrePionChoisi.y-LARG_CASE*2;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_LIBRE);	
+	}
 	
 	affiche_all();
 }
 
 
 /* Controleur */
-void trouver_cases_libres_ig1(POINT centrePionChoisi,NUMCASE numCasePionChoisi,int *positionCasesLibres)
+void trouver_cases_libres_ig1(POINT centrePionChoisi,NUMCASE numCasePionChoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque)
 {
 	*positionCasesLibres=donner_position_cases_libres_deplacement(numCasePionChoisi);
-
-	afficher_cases_libres_ig1(centrePionChoisi,*positionCasesLibres);
+	*positionCasesLibresAttaque=donner_position_cases_libres_attaque(numCasePionChoisi,couleurJoueur);
+	
+	afficher_cases_libres_ig1(centrePionChoisi,*positionCasesLibres,*positionCasesLibresAttaque);
 }
 
 
 /* Vue */
-void effacer_cases_libres_choisies_ig1(POINT centrePionChoisi,int positionCasesLibres)
+void effacer_cases_libres_choisies_ig1(POINT centrePionChoisi,int positionCasesLibres,int positionCasesLibresAttaque)
 {
 	POINT centreCaseLibre;
 	
+	/* Cases Normales */
 	if(positionCasesLibres%2>0) //rond haut gauche
 	{
 		centreCaseLibre.x=centrePionChoisi.x-LARG_CASE;
@@ -903,6 +990,35 @@ void effacer_cases_libres_choisies_ig1(POINT centrePionChoisi,int positionCasesL
 	{
 		centreCaseLibre.x=centrePionChoisi.x+LARG_CASE;
 		centreCaseLibre.y=centrePionChoisi.y-LARG_CASE;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);	
+	}
+	
+	/* Cases Attaque */
+	if(positionCasesLibresAttaque%2>0) //rond haut gauche
+	{
+		centreCaseLibre.x=centrePionChoisi.x-LARG_CASE*2;
+		centreCaseLibre.y=centrePionChoisi.y+LARG_CASE*2;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);
+	}
+	
+	if(positionCasesLibresAttaque%4>1) //rond haut droite
+	{
+		centreCaseLibre.x=centrePionChoisi.x+LARG_CASE*2;
+		centreCaseLibre.y=centrePionChoisi.y+LARG_CASE*2;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);
+	}
+	
+	if(positionCasesLibresAttaque%8>3) //rond bas gauche
+	{
+		centreCaseLibre.x=centrePionChoisi.x-LARG_CASE*2;
+		centreCaseLibre.y=centrePionChoisi.y-LARG_CASE*2;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);	
+	}
+	
+	if(positionCasesLibresAttaque%16>7) //rond bas droite
+	{
+		centreCaseLibre.x=centrePionChoisi.x+LARG_CASE*2;
+		centreCaseLibre.y=centrePionChoisi.y-LARG_CASE*2;
 		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);	
 	}
 
@@ -923,6 +1039,7 @@ void afficher_texte_choix_destination()
 	aff_pol("Choix destination",20,ptTexteDestination,blanc);
 	affiche_all();
 }
+
 
 /* Vue */
 void effacer_texte_choix_destination()
@@ -961,14 +1078,63 @@ void effacer_piece_case_orig_ig1(POINT centreCasePionChoisi)
 }
 
 
-/* Controleur */
-void bouger_pion_choisi_ig1(POINT centreCasePionChoisi,POINT centreCaseDestination,NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur,int positionCasesLibres)
+/* Vue */
+void enlever_pion_qui_subit_attaque_ig1(POINT centrePionChoisi,int positionCasesLibresAttaque)
 {
-	effacer_cases_libres_choisies_ig1(centreCasePionChoisi,positionCasesLibres);
+	POINT centreCaseLibre;
+	
+	if(positionCasesLibresAttaque%2>0) //rond haut gauche
+	{
+		centreCaseLibre.x=centrePionChoisi.x-LARG_CASE;
+		centreCaseLibre.y=centrePionChoisi.y+LARG_CASE;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);
+	}
+	
+	if(positionCasesLibresAttaque%4>1) //rond haut droite
+	{
+		centreCaseLibre.x=centrePionChoisi.x+LARG_CASE;
+		centreCaseLibre.y=centrePionChoisi.y+LARG_CASE;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);
+	}
+	
+	if(positionCasesLibresAttaque%8>3) //rond bas gauche
+	{
+		centreCaseLibre.x=centrePionChoisi.x-LARG_CASE;
+		centreCaseLibre.y=centrePionChoisi.y-LARG_CASE;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);	
+	}
+	
+	if(positionCasesLibresAttaque%16>7) //rond bas droite
+	{
+		centreCaseLibre.x=centrePionChoisi.x+LARG_CASE;
+		centreCaseLibre.y=centrePionChoisi.y-LARG_CASE;
+		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);	
+	}
+	
+	affiche_all();
+}
+
+/* Controleur */
+void bouger_pion_choisi_ig1(POINT centreCasePionChoisi,POINT centreCaseDestination,NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur,int positionCasesLibres,int positionCasesLibresAttaque)
+{
+	int /*nbrePionJ1=20,*/nbrePionJ2=20; /* A ENLEVER ET A METTRE DANS LA FONCTION PRINCIPALE */
+	
+	effacer_cases_libres_choisies_ig1(centreCasePionChoisi,positionCasesLibres,positionCasesLibresAttaque);
 	effacer_piece_case_orig_ig1(centreCasePionChoisi);
 	
-	changer_etat_case_destination(numCaseOrig,numCaseDestination,couleurJoueur);
-	changer_etat_case_orig(numCaseOrig);
+	if( est_coup_valide_deplacement(numCaseOrig,numCaseDestination) )
+	{
+		effectuer_deplacement_dans_tableau_logique(numCaseOrig,numCaseDestination,couleurJoueur);
+	}
+	
+	else if( est_coup_valide_attaque(numCaseOrig,numCaseDestination,couleurJoueur) )
+	{
+		enlever_pion_qui_subit_attaque_ig1(centreCasePionChoisi,positionCasesLibresAttaque);
+		effectuer_attaque_dans_tableau_logique(numCaseOrig,numCaseDestination,couleurJoueur,&nbrePionJ2);
+	}
+	
+	//~ changer_etat_case_destination(numCaseOrig,numCaseDestination,couleurJoueur);
+	//~ changer_etat_case_orig(numCaseOrig);
 	
 	afficher_piece_ig1(centreCaseDestination,numCaseDestination.ligne,numCaseDestination.colonne);
 	
