@@ -322,7 +322,7 @@ void jouer_dans_terminal(COULP couleurJoueur, int *nbrePionJoueur)
 						{
 							depart.ligne = arrivee.ligne;
 							depart.colonne = arrivee.colonne;
-							printf("OK, vous allez pouvoir attaque de nouveau !\n");
+							printf("OK, vous allez pouvoir attaquer de nouveau !\n");
 							multiAttaque = 1;
 						}
 					}
