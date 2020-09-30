@@ -256,74 +256,76 @@ void afficher_plateau_dans_terminal()
 void jouer_dans_terminal(COULP couleurJoueur, int *nbrePionJ1, int *nbrePionJ2)
 {
 	char choix;
-	NUMCASE clic1, clic2;
+	BOOL multiAttaque = 0;
+	NUMCASE depart, arrivee;
 	do
 	{
 		afficher_plateau_dans_terminal();
 		printf("J1 : %d pions | J2 : %d pions\n", *nbrePionJ1, *nbrePionJ2);
 		printf("Le joueur %d joue. Coordonnées du pion à déplacer :\n", couleurJoueur);
-		scanf("%d %d", &clic1.colonne, &clic1.ligne);
-		printf("La case %d %d est : ", clic1.colonne, clic1.ligne);
-		afficher_etat_case_dans_terminal(clic1.colonne, clic1.ligne);
+		scanf("%d %d", &depart.colonne, &depart.ligne);
 		printf("\n");
-		if(est_bloque(clic1, couleurJoueur))
+		if(plateau[depart.colonne][depart.ligne].coulP != aucune && est_bloque(depart, couleurJoueur))
 		{
 			printf("Pion bloqué. Veuillez en choisir un autre.\n");
 		}
-		else if( plateau[clic1.colonne][clic1.ligne].coulP  == couleurJoueur)
+		else if( plateau[depart.colonne][depart.ligne].coulP  == couleurJoueur)
 		{
-			printf("Vous pouvez jouer!\n");
-			printf("Le joueur %d joue. Coordonnées de destination :\n", couleurJoueur);
-			scanf("%d %d", &clic2.colonne, &clic2.ligne);
-			if(est_coup_valide_deplacement(clic1, clic2))
+			do
 			{
-				plateau[clic1.colonne][clic1.ligne].coulP = aucune;
-				plateau[clic2.colonne][clic2.ligne].typeP = plateau[clic1.colonne][clic1.ligne].typeP;
-				plateau[clic2.colonne][clic2.ligne].coulP = couleurJoueur;
-				transformer_pion_en_dame(clic2, couleurJoueur);
-				break;
-			}
-			if(est_coup_valide_attaque(clic1, clic2, couleurJoueur))
-			{
-				plateau[clic1.colonne][clic1.ligne].coulP = aucune;
-				plateau[(clic1.colonne + clic2.colonne) / 2][(clic1.ligne + clic2.ligne) / 2].coulP = aucune;
-				plateau[clic2.colonne][clic2.ligne].typeP = plateau[clic1.colonne][clic1.ligne].typeP;
-				plateau[clic2.colonne][clic2.ligne].coulP = couleurJoueur;
-				transformer_pion_en_dame(clic2, couleurJoueur);
-				if(couleurJoueur == coul1)
+				afficher_plateau_dans_terminal();
+				printf("Vous pouvez jouer!\n");
+				printf("Le joueur %d joue. Coordonnées de destination :\n", couleurJoueur);
+				scanf("%d %d", &arrivee.colonne, &arrivee.ligne);
+				if( !multiAttaque && est_coup_valide_deplacement(depart, arrivee))
 				{
-					*nbrePionJ2 = *nbrePionJ2 - 1;
+					plateau[depart.colonne][depart.ligne].coulP = aucune;
+					plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
+					plateau[arrivee.colonne][arrivee.ligne].coulP = couleurJoueur;
+					transformer_pion_en_dame(arrivee, couleurJoueur);
+					return;
 				}
-				else
+				if(est_coup_valide_attaque(depart, arrivee, couleurJoueur))
 				{
-					*nbrePionJ1 = *nbrePionJ1 - 1;
-				}
-				if(donner_position_cases_libres_attaque(clic2, couleurJoueur))
-				{
-					printf("Voulez-vous continuer le tour en attaquant de nouveau ? (o/n)\n");
-					scanf(" %c", &choix);
-					if(choix == 'n')
+					plateau[depart.colonne][depart.ligne].coulP = aucune;
+					plateau[(depart.colonne + arrivee.colonne) / 2][(depart.ligne + arrivee.ligne) / 2].coulP = aucune;
+					plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
+					plateau[arrivee.colonne][arrivee.ligne].coulP = couleurJoueur;
+					transformer_pion_en_dame(arrivee, couleurJoueur);
+					if(couleurJoueur == coul1)
+						*nbrePionJ2 = *nbrePionJ2 - 1;
+					else
+						*nbrePionJ1 = *nbrePionJ1 - 1;
+					if(donner_position_cases_libres_attaque(arrivee, couleurJoueur))
 					{
-						printf("OK, tour terminé !\n");
-						break;
+						printf("Voulez-vous continuer le tour en attaquant de nouveau ? (o/n)\n");
+						scanf(" %c", &choix);
+						if(choix == 'n')
+						{
+							printf("OK, tour terminé !\n");
+							return;
+						}
+						else
+						{
+							depart.ligne = arrivee.ligne;
+							depart.colonne = arrivee.colonne;
+							printf("OK, vous allez pouvoir attaque de nouveau !\n");
+							multiAttaque = 1;
+						}
 					}
 					else
-					{
-						printf("OK, vous allez commencer un nouveau tour !\n");
-					}
+						return;
 				}
 				else
-					break;
-			}
-			else
-			{
-				printf("Coup non valide.\n Recommencez le tour.\n");
-			}
+				{
+					printf("Coup non valide.\n Recommencez.\n");
+					if( !multiAttaque)
+						break;
+				}
+			}while(1);
 		}
 		else
-		{
 			printf("Ce n'est pas un pion de votre couleur !\n Recommencez le tour.\n");
-		}
 	}while(1);
 }
 
