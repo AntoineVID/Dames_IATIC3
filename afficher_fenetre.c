@@ -61,8 +61,10 @@ void changer_tour_joueur_ig1(COULP *couleurJoueur);
 void changer_tour_interface_ig1(COULP couleurJoueur);
 void changer_tour_joueur_ig2(COULP *couleurJoueur);
 void changer_tour_interface_ig2(COULP couleurJoueur);
+
 void tour_piece_ig1(COULP couleur_joueur);
 void tour_piece_ig2(COULP couleur_joueur);
+
 void jouer(int igChoisi);
 
 
@@ -78,9 +80,9 @@ void afficher_cases_libres_ig1(POINT centrePionChoisi,int positionCasesLibres);
 void trouver_cases_libres_ig1(POINT centrePionChoisi,NUMCASE numCasePionchoisi,int *positionCasesLibres);
 void effacer_cases_libres_choisies_ig1(POINT centrePionChoisi,int positionCasesLibres);
 
-
-
-void afficher_cases_libres_pion_ig2(POINT centrePionChoisi,COULP couleurJoueur);
+//~ void afficher_cases_libres_ig2(POINT centrePionChoisi,int positionCasesLibres);
+//~ void trouver_cases_libres_ig2(POINT centrePionChoisi,NUMCASE numCasePionchoisi,int *positionCasesLibres);
+//~ void effacer_cases_libres_choisies_ig2(POINT centrePionChoisi,int positionCasesLibres);
 
 
 /* Choisir destination */
@@ -696,20 +698,28 @@ void tour_piece_ig1(COULP couleurJoueur)
 }
 
 
-/* Vue */
+/* Controleur */
+/*
 void tour_piece_ig2(COULP couleurJoueur)
 {
-	POINT centreCasePionChoisi/*,caseLibrebg1,caseLibrehd1,caseLibrebg2,caseLibrehd2*/;
-	NUMCASE numCasePionChoisi;
+	POINT centreCasePionChoisi,centreCaseDestination;
+	NUMCASE numCasePionChoisi,numCaseDestination;
+	int positionCasesLibres=0;
 	
-	choisir_pion_valide(couleurJoueur,&centreCasePionChoisi,&numCasePionChoisi);
-	afficher_cases_libres_pion_ig2(centreCasePionChoisi,couleurJoueur);
+	do{
+		
+		effacer_cases_libres_choisies_ig1(centreCasePionChoisi,positionCasesLibres);
+		choisir_pion_valide(couleurJoueur,&centreCasePionChoisi,&numCasePionChoisi);
+		trouver_cases_libres_ig2(centreCasePionChoisi,numCasePionChoisi,&positionCasesLibres);
+		choisir_destination_ig2(centreCasePionChoisi,&centreCaseDestination,&numCaseDestination);
+
+	}while( !(est_coup_valide_deplacement(numCasePionChoisi,numCaseDestination)) );
 	
-	/* BOUGER PION */
+	bouger_pion_choisi_ig2(centreCasePionChoisi,centreCaseDestination,numCasePionChoisi,numCaseDestination,couleurJoueur,positionCasesLibres);
 	
 	affiche_all();
 }
-
+*/
 
 /* Controleur? */
 void jouer(int igChoisi)
@@ -721,16 +731,12 @@ void jouer(int igChoisi)
 		{
 			tour_piece_ig1(couleurJoueur);
 			changer_tour_joueur_ig1(&couleurJoueur);
-			tour_piece_ig1(couleurJoueur);
-			changer_tour_joueur_ig1(&couleurJoueur);
 		}
 		
 		else if(igChoisi==2)
 		{
-			tour_piece_ig2(couleurJoueur);
-			changer_tour_joueur_ig2(&couleurJoueur);
-			tour_piece_ig2(couleurJoueur);
-			changer_tour_joueur_ig2(&couleurJoueur);
+			//~ tour_piece_ig2(couleurJoueur);
+			//~ changer_tour_joueur_ig2(&couleurJoueur);
 		}
 	}while(1); //personne n'a perdu
 }
@@ -900,51 +906,6 @@ void effacer_cases_libres_choisies_ig1(POINT centrePionChoisi,int positionCasesL
 		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);	
 	}
 
-	affiche_all();
-}
-
-
-/* Vue */
-void afficher_cases_libres_pion_ig2(POINT centrePionChoisi,COULP couleurJoueur)
-{
-	POINT caseLibrebg1,caseLibrehd1,caseLibrebg2,caseLibrehd2;
-	
-	if(couleurJoueur==coul1)
-	{
-		caseLibrebg1.x=centrePionChoisi.x+LARG_CASE/2;
-		caseLibrebg1.y=centrePionChoisi.y+LARG_CASE/2;
-		caseLibrehd1.x=(centrePionChoisi.x+1.5*LARG_CASE)-1;
-		caseLibrehd1.y=(centrePionChoisi.y+1.5*LARG_CASE)-1;
-
-		caseLibrehd2.x=centrePionChoisi.x+LARG_CASE/2;
-		caseLibrehd2.y=centrePionChoisi.y-1.5*LARG_CASE;
-		caseLibrebg2.x=(centrePionChoisi.x+1.5*LARG_CASE)-1;
-		caseLibrebg2.y=(centrePionChoisi.y-LARG_CASE/2)-1;
-	}
-	
-	else if(couleurJoueur==coul2)
-	{
-		caseLibrebg1.x=centrePionChoisi.x-1.5*LARG_CASE;
-		caseLibrebg1.y=centrePionChoisi.y+LARG_CASE/2;
-		caseLibrehd1.x=(centrePionChoisi.x-LARG_CASE/2)-1;
-		caseLibrehd1.y=(centrePionChoisi.y+1.5*LARG_CASE)-1;
-
-		caseLibrehd2.x=centrePionChoisi.x-1.5*LARG_CASE;
-		caseLibrehd2.y=centrePionChoisi.y-1.5*LARG_CASE;
-		caseLibrebg2.x=(centrePionChoisi.x-LARG_CASE/2)-1;
-		caseLibrebg2.y=(centrePionChoisi.y-LARG_CASE/2)-1;
-	}
-	
-	if(centrePionChoisi.y<(HAUT_FENETRE-LARG_CASE)) //Eviter dessiner sur bord haut
-	{
-		draw_fill_rectangle(caseLibrebg1,caseLibrehd1,COULEUR_CASE_LIBRE);
-	}
-	
-	if(centrePionChoisi.y>LARG_CASE) //Eviter dessiner sur bord bas
-	{
-		draw_fill_rectangle(caseLibrebg2,caseLibrehd2,COULEUR_CASE_LIBRE);
-	}
-	
 	affiche_all();
 }
 
