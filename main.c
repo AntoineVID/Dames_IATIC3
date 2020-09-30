@@ -100,7 +100,7 @@ int donner_position_cases_libres_deplacement(NUMCASE depart)
 				cases_libres += 2;
 		}
 	}
-	if(depart.ligne > 1)
+	if(depart.ligne > 0)
 	{
 		if( ( plateau[depart.colonne][depart.ligne].typeP == dame )
 		|| ( plateau[depart.colonne][depart.ligne].coulP == coul2 ))
