@@ -86,25 +86,33 @@ int donner_position_cases_libres_deplacement(NUMCASE depart)
 	int cases_libres = 0;
 	NUMCASE arrivee;
 
-	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul1)
+	if(depart.ligne < 9)
 	{
-		arrivee.ligne = depart.ligne + 1;
-		arrivee.colonne = depart.colonne - 1;
-		if(depart.colonne > 0 && est_coup_valide_deplacement(depart, arrivee))
-			cases_libres += 1;
-		arrivee.colonne = depart.colonne + 1;
-		if(depart.colonne < 9 && est_coup_valide_deplacement(depart, arrivee))
-			cases_libres += 2;
+		if( ( plateau[depart.colonne][depart.ligne].typeP == dame )
+		|| ( plateau[depart.colonne][depart.ligne].coulP == coul1 ))
+		{
+			arrivee.ligne = depart.ligne + 1;
+			arrivee.colonne = depart.colonne - 1;
+			if(depart.colonne > 0 && est_coup_valide_deplacement(depart, arrivee))
+				cases_libres += 1;
+			arrivee.colonne = depart.colonne + 1;
+			if(depart.colonne < 9 && est_coup_valide_deplacement(depart, arrivee))
+				cases_libres += 2;
+		}
 	}
-	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul2)
+	if(depart.ligne > 1)
 	{
-		arrivee.ligne = depart.ligne - 1;
-		arrivee.colonne = depart.colonne - 1;
-		if(depart.colonne > 0 && est_coup_valide_deplacement(depart, arrivee))
-			cases_libres += 4;
-		arrivee.colonne = depart.colonne + 1;
-		if(depart.colonne < 9 && est_coup_valide_deplacement(depart, arrivee))
-			cases_libres += 8;
+		if( ( plateau[depart.colonne][depart.ligne].typeP == dame )
+		|| ( plateau[depart.colonne][depart.ligne].coulP == coul2 ))
+		{
+			arrivee.ligne = depart.ligne - 1;
+			arrivee.colonne = depart.colonne - 1;
+			if(depart.colonne > 0 && est_coup_valide_deplacement(depart, arrivee))
+				cases_libres += 4;
+			arrivee.colonne = depart.colonne + 1;
+			if(depart.colonne < 9 && est_coup_valide_deplacement(depart, arrivee))
+				cases_libres += 8;
+		}
 	}
 	return cases_libres;
 }
@@ -113,26 +121,33 @@ int donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur)
 {
 	int cases_libres = 0;
 	NUMCASE arrivee;
-
-	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul1)
+	if(depart.ligne < 8)
 	{
-		arrivee.ligne = depart.ligne + 2;
-		arrivee.colonne = depart.colonne - 2;
-		if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			cases_libres += 1;
-		arrivee.colonne = depart.colonne + 2;
-		if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			cases_libres += 2;
+		if( ( plateau[depart.colonne][depart.ligne].typeP == dame )
+		|| ( plateau[depart.colonne][depart.ligne].coulP == coul1 ))
+		{
+			arrivee.ligne = depart.ligne + 2;
+			arrivee.colonne = depart.colonne - 2;
+			if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+				cases_libres += 1;
+			arrivee.colonne = depart.colonne + 2;
+			if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+				cases_libres += 2;
+		}
 	}
-	if(plateau[depart.colonne][depart.ligne].typeP == dame || plateau[depart.colonne][depart.ligne].coulP == coul2)
+	if(depart.ligne > 1)
 	{
-		arrivee.ligne = depart.ligne - 2;
-		arrivee.colonne = depart.colonne - 2;
-		if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			cases_libres += 4;
-		arrivee.colonne = depart.colonne + 2;
-		if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
-			cases_libres += 8;
+		if( ( plateau[depart.colonne][depart.ligne].typeP == dame )
+		|| ( plateau[depart.colonne][depart.ligne].coulP == coul2 ))
+		{
+			arrivee.ligne = depart.ligne - 2;
+			arrivee.colonne = depart.colonne - 2;
+			if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+				cases_libres += 4;
+			arrivee.colonne = depart.colonne + 2;
+			if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+				cases_libres += 8;
+		}
 	}
 	return cases_libres;
 }
