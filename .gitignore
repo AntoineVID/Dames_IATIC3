@@ -1,4 +1,4 @@
 *.o
 main
-affiche_fenetre
+afficher_fenetre
 jouer
