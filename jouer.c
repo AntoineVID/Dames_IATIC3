@@ -1100,7 +1100,9 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 				bouger_pion_choisi_ig1(centreCasePionChoisi, centreCaseDestination, numCasePionChoisi, numCaseDestination, couleurJoueur, positionCasesLibres, positionCasesLibresAttaque, nbrePionJoueur);
 				if(donner_position_cases_libres_attaque(numCaseDestination, couleurJoueur))
 				{
-					printf("Voulez-vous continuer le tour en attaquant de nouveau ? (o/n)\n");
+					
+					// Cette partie doit être revue
+					printf("Voulez-vous continuer le tour en attaquant de nouveau ? (o/n)\n"); // Ici, il faut demander au joueur s'il veut attaquer une autre fois
 					char choix;
 					scanf(" %c", &choix);
 					if(choix == 'n')
@@ -1115,6 +1117,7 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 						printf("OK, vous allez pouvoir attaquer de nouveau !\n");
 						multiAttaque = 1;
 					}
+					// Cette partie doit être revue
 				}
 				else
 					return;
