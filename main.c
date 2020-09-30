@@ -197,11 +197,11 @@ BOOL est_joueur_bloque(COULP couleurJoueur, int nbrePionJoueur)
 
 int tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur)
 {
-	if(est_joueur_bloque(couleurJoueur, nbrePionJoueur))
+	if(nbrePionJoueur == 0)
 	{
 		return 1;
 	}
-	if(nbrePionJoueur == 0)
+	if(est_joueur_bloque(couleurJoueur, nbrePionJoueur))
 	{
 		return 2;
 	}
@@ -346,12 +346,12 @@ BOOL est_fin_jeu_dans_terminal(COULP couleurJoueur, int nbrePionJoueur)
 {
 	if(tester_fin_jeu(couleurJoueur, nbrePionJoueur) == 1)
 	{
-		printf("Le joueur %d est bloqué. Le joueur %d a gagné !\n", couleurJoueur, (couleurJoueur == coul1) ? coul2 : coul1);
+		printf("Le joueur %d n'a plus de pion. Le joueur %d a gagné !\n", couleurJoueur, (couleurJoueur == coul1) ? coul2 : coul1);
 		return 1;
 	}
 	else if(tester_fin_jeu(couleurJoueur, nbrePionJoueur) == 2)
 	{
-		printf("Le joueur %d n'a plus de pion. Le joueur %d a gagné !\n", couleurJoueur, (couleurJoueur == coul1) ? coul2 : coul1);
+		printf("Le joueur %d est bloqué. Le joueur %d a gagné !\n", couleurJoueur, (couleurJoueur == coul1) ? coul2 : coul1);
 		return 1;
 	}
 	return 0;
@@ -363,13 +363,14 @@ BOOL est_fin_jeu_dans_terminal(COULP couleurJoueur, int nbrePionJoueur)
 
 int main()
 {
-	int nbrePionJ1 = 20, nbrePionJ2 = 20, nbrePionJoueur;
+	int nbrePionJ1 = 20, nbrePionJ2 = 20;
+	int *nbrePionAutreJoueur = &nbrePionJ2;
 	COULP couleurJoueur = coul1;
 	initialiser_plateau();
 	do{
-		nbrePionJoueur = (couleurJoueur == coul1) ? nbrePionJ1 : nbrePionJ2;
-		jouer_dans_terminal(couleurJoueur, &nbrePionJoueur);
+		nbrePionAutreJoueur = (couleurJoueur == coul1) ? &nbrePionJ2 : &nbrePionJ1;
+		jouer_dans_terminal(couleurJoueur, nbrePionAutreJoueur);
 		couleurJoueur = (couleurJoueur == coul1) ? coul2 : coul1;
-	}while( !est_fin_jeu_dans_terminal(couleurJoueur, nbrePionJoueur));
+	}while( !est_fin_jeu_dans_terminal(couleurJoueur, *nbrePionAutreJoueur));
 	return(0);
 }
