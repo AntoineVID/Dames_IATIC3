@@ -1466,9 +1466,9 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 				{
 					if(est_acceptee_multi_attaque())
 					{
+						est_multiAttaque = TRUE;
 						numCasePionChoisi.ligne = numCaseDestination.ligne;
 						numCasePionChoisi.colonne = numCaseDestination.colonne;
-						est_multiAttaque = TRUE;
 						centreCasePionChoisi = convertir_numCase_en_centreCase(numCasePionChoisi);
 						trouver_cases_libres_ig1(centreCasePionChoisi,numCasePionChoisi,couleurJoueur,&positionCasesLibres,&positionCasesLibresAttaque, est_multiAttaque);
 					}
