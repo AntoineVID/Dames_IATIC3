@@ -1050,9 +1050,9 @@ BOOL recuperer_choix_multi_attaque(POINT ptOui1, POINT ptOui2, POINT ptNon1, POI
 	{
 		clicMultiAtk = wait_clic();
 		if((clicMultiAtk.x > ptOui1.x) && (clicMultiAtk.x < ptOui2.x) && (clicMultiAtk.y < ptOui1.y) && (clicMultiAtk.y > ptOui2.y))
-			return 1;
+			return TRUE;
 		else if((clicMultiAtk.x > ptNon1.x) && (clicMultiAtk.x < ptNon2.x) && (clicMultiAtk.y < ptNon1.y) && (clicMultiAtk.y > ptNon2.y))
-			return 0;
+			return FALSE;
 	}while(1);
 }
 
@@ -1302,7 +1302,7 @@ POINT recuperer_clic_redemander_partie(POINT ptOui,POINT ptNon)
 BOOL redemander_partie(int nbrePionJ1,int nbrePionJ2)
 {
 	POINT ptOui,ptNon,clicRedemanderPartie;
-	BOOL rejouer=false;
+	BOOL rejouer=FALSE;
 
 	ptOui.x=(LARG_FENETRE/3)+150;ptOui.y=HAUT_FENETRE/2;
 	ptNon.x=(LARG_FENETRE/3)+250;ptNon.y=ptOui.y;
@@ -1451,16 +1451,16 @@ NUMCASE convertir_numCase_ig2_vers_ig1(NUMCASE numCaseIg2)
 
 BOOL savoir_si_rejouer_partie(POINT ptOui,POINT ptNon,POINT clicRedemanderPartie)
 {
-	BOOL rejouer=true;
+	BOOL rejouer=TRUE;
 	
 	if( (clicRedemanderPartie.x>=ptOui.x) && (clicRedemanderPartie.x<=ptOui.x+40) && (clicRedemanderPartie.y>=ptOui.y-20) && (clicRedemanderPartie.y<=ptOui.y) ) //40=longueur_texte 20=hauteur_texte
 	{
-		rejouer=true;
+		rejouer=TRUE;
 	}
 	
 	else if( (clicRedemanderPartie.x>=ptNon.x) && (clicRedemanderPartie.x<=ptNon.x+40) && (clicRedemanderPartie.y>=ptNon.y-20) && (clicRedemanderPartie.y<=ptNon.y) ) //40=longueur_texte 20=hauteur_texte
 	{
-		rejouer=false;
+		rejouer=FALSE;
 	}
 	
 	return rejouer;
@@ -1583,7 +1583,7 @@ void tour_piece_ig2(COULP couleurJoueur, int *nbrePionJoueur)
 
 int main()
 {
-	BOOL rejouer = true;
+	BOOL rejouer = TRUE;
 	int igChoisi, nbrePionJ1, nbrePionJ2;
 	int *nbrePionAutreJoueur;
 	COULP couleurJoueur = coul1;
