@@ -21,7 +21,7 @@
 
 typedef enum TYPEP{
 	vide, pion, dame
-} TYPEP; 
+} TYPEP;
 
 typedef enum COULP{
 	aucune, coul1, coul2
