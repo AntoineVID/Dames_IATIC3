@@ -152,6 +152,9 @@ void afficher_ecran_titre_ig2();
 POINT recuperer_clic_choix_ig();
 void afficher_ecran_titre(int *ig);
 
+/* Afficher Fin Partie */
+void afficher_gagnant(int nbrePionJ1,int nbrePionJ2);
+
 /* Redemander partie */
 void afficher_texte_redemander_partie(POINT ptOui,POINT ptNon);
 POINT recuperer_clic_redemander_partie(POINT ptOui,POINT ptNon);

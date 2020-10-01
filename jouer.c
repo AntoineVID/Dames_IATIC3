@@ -438,8 +438,7 @@ void afficher_plateau_ig2()
 {
 	int i=0,j=0;
 	POINT ptbgCase,pthdCase,ptCentreCase;
-	
-	ptCentreCase.x=LARG_CASE/2;ptCentreCase.y=LARG_CASE/2;
+	NUMCASE numCaseIg1={0,0},numCaseIg2={0,0};
 
 	ptbgCase.x=0;ptbgCase.y=0;
 	pthdCase.x=ptbgCase.x+LARG_CASE;pthdCase.y=ptbgCase.y+LARG_CASE;
@@ -448,31 +447,39 @@ void afficher_plateau_ig2()
 	{
 		for(j=0;j<10;j++)
 		{
-			if ( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) ) //Si les coordonnées sont toutes les 2 paires ou toutes les 2 impaires
+			if( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) ) //Si les coordonnées sont toutes les 2 paires ou toutes les 2 impaires
 			{
-				afficher_case_ig2(ptbgCase,pthdCase,COULEUR_CASE_JOUEURS);
-				
-				if(plateau[j][i].coulP != aucune)
-				{
-					afficher_piece_ig2(ptCentreCase,i,j); //MAUVAIS CAR SE BASE SUR LE PLATEAU DE IG1
-				}
+				afficher_case_ig2(ptbgCase,pthdCase,COULEUR_CASE_VIDE);
 			}
 			
 			else
 			{
-				afficher_case_ig2(ptbgCase,pthdCase,COULEUR_CASE_VIDE);
+				afficher_case_ig2(ptbgCase,pthdCase,COULEUR_CASE_JOUEURS);
 			}
-		
-			ptCentreCase.x+=LARG_CASE;
 			ptbgCase.x+=LARG_CASE;
 			pthdCase.x+=LARG_CASE;
 		}
-		
-		ptCentreCase.x=LARG_CASE/2;
-		ptCentreCase.y+=LARG_CASE;
 		ptbgCase.x=0;ptbgCase.y+=LARG_CASE;
 		pthdCase.x=ptbgCase.x+LARG_CASE;pthdCase.y+=LARG_CASE;
 	}
+	
+	
+	
+	for(i=0;i<10;i++)
+	{
+		for(j=0;j<10;j++)
+		{
+			if(plateau[j][i].coulP != aucune)
+			{
+				numCaseIg1.ligne=i;numCaseIg1.colonne=j;
+				numCaseIg2=convertir_numCase_ig1_vers_ig2(numCaseIg1);
+				ptCentreCase=convertir_numCase_en_centreCase(numCaseIg2);
+				
+				afficher_piece_ig2(ptCentreCase,i,j);	
+			}
+		}
+	}
+	
 	affiche_all();
 }
 
@@ -483,7 +490,7 @@ void afficher_ecran_jeu_selon_ig(int igChoisi)
 	if (igChoisi==1)
 		afficher_plateau_ig1();
 	else
-	afficher_plateau_ig2();
+		afficher_plateau_ig2();
 	
 	afficher_interface(igChoisi);
 	affiche_all();
@@ -1234,6 +1241,38 @@ void afficher_ecran_titre(int *ig)
 	
 }
 
+/*		-- Afficher Fin Partie --		*/
+
+void afficher_gagnant(int nbrePionJ1,int nbrePionJ2)
+{
+	POINT ptTexteGagnant;
+	
+	ptTexteGagnant.x=50; ptTexteGagnant.y=HAUT_FENETRE-50;
+	
+	if( tester_fin_jeu(coul1,nbrePionJ1) == 1)
+	{
+		aff_pol("Le joueur 1 n'a plus de pion. Le joueur 2 gagne !",20,ptTexteGagnant,blanc);
+	}
+	
+	if( tester_fin_jeu(coul2,nbrePionJ2) == 1)
+	{
+		aff_pol("Le joueur 2 n'a plus de pion. Le joueur 1 gagne !",20,ptTexteGagnant,blanc);
+	}
+	
+	
+	if( tester_fin_jeu(coul1,nbrePionJ1) == 2)
+	{
+		aff_pol("Le joueur 1 est bloqué. Le joueur 2 gagne !",20,ptTexteGagnant,blanc);
+	}
+	
+	if( tester_fin_jeu(coul2,nbrePionJ2) == 2)
+	{
+		aff_pol("Le joueur 2 est bloqué. Le joueur 1 gagne !",20,ptTexteGagnant,blanc);
+	}
+	
+	affiche_all();
+}
+
 /*		-- Afficher Redemander Partie --		*/
 
 void afficher_texte_redemander_partie(POINT ptOui,POINT ptNon)
@@ -1241,10 +1280,6 @@ void afficher_texte_redemander_partie(POINT ptOui,POINT ptNon)
 	POINT ptRejouer;
 	
 	ptRejouer.x=LARG_FENETRE/3;ptRejouer.y=HAUT_FENETRE/2;
-
-	fill_screen(noir);
-	
-	/*afficher_gagnant();*/
 	
 	aff_pol("Rejouer ?",20,ptRejouer,blanc);
 	aff_pol("Oui",20,ptOui,blanc);
@@ -1264,7 +1299,7 @@ POINT recuperer_clic_redemander_partie(POINT ptOui,POINT ptNon)
 	return clicRedemanderPartie;
 }
 
-BOOL redemander_partie()
+BOOL redemander_partie(int nbrePionJ1,int nbrePionJ2)
 {
 	POINT ptOui,ptNon,clicRedemanderPartie;
 	BOOL rejouer=false;
@@ -1273,12 +1308,14 @@ BOOL redemander_partie()
 	ptNon.x=(LARG_FENETRE/3)+250;ptNon.y=ptOui.y;
 	
 	fill_screen(noir);
+	afficher_gagnant(nbrePionJ1,nbrePionJ2);
 	afficher_texte_redemander_partie(ptOui,ptNon);
 	clicRedemanderPartie=recuperer_clic_redemander_partie(ptOui,ptNon);
 	rejouer=savoir_si_rejouer_partie(ptOui,ptNon,clicRedemanderPartie);
 	
 	return rejouer;
 }
+
 
 /*
  * /\ VUE /\
@@ -1544,21 +1581,6 @@ void tour_piece_ig2(COULP couleurJoueur, int *nbrePionJoueur)
  * ||            ||
  */
 
-BOOL est_fin_jeu_dans_terminal(COULP couleurJoueur, int nbrePionJoueur)
-{
-	if(tester_fin_jeu(couleurJoueur, nbrePionJoueur) == 1)
-	{
-		printf("Le joueur %d n'a plus de pion. Le joueur %d a gagné !\n", couleurJoueur, (couleurJoueur == coul1) ? coul2 : coul1);
-		return 1;
-	}
-	else if(tester_fin_jeu(couleurJoueur, nbrePionJoueur) == 2)
-	{
-		printf("Le joueur %d est bloqué. Le joueur %d a gagné !\n", couleurJoueur, (couleurJoueur == coul1) ? coul2 : coul1);
-		return 1;
-	}
-	return 0;
-}
-
 int main()
 {
 	BOOL rejouer = true;
@@ -1592,8 +1614,8 @@ int main()
 				tour_piece_ig2(couleurJoueur, nbrePionAutreJoueur);
 				changer_tour_joueur_ig2(&couleurJoueur);
 			}
-		}while( !est_fin_jeu_dans_terminal(couleurJoueur, *nbrePionAutreJoueur));
-		rejouer = redemander_partie();
+		}while( !tester_fin_jeu(couleurJoueur, *nbrePionAutreJoueur));
+		rejouer = redemander_partie(nbrePionJ1,nbrePionJ2);
 	}while(rejouer);
 	
 	fill_screen(noir);
@@ -1601,4 +1623,3 @@ int main()
 	wait_escape();
 	return 0;
 }
-
