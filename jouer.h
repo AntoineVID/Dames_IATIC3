@@ -128,7 +128,7 @@ void choisir_destination_ig1(POINT centreCasePionChoisi,POINT *centreCaseDestina
 
 /* Bouger Pion */
 void effacer_piece_case_orig_ig1(POINT centreCasePionChoisi);
-void enlever_pion_qui_subit_attaque_ig1(POINT centreCasePionChoisi,int positionCasesLibresAttaque);
+void enlever_pion_qui_subit_attaque_ig1(POINT centreCasePionChoisi, POINT centreCaseDestination);
 
 /* Choix attaque multiple */
 

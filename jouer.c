@@ -795,37 +795,13 @@ void effacer_piece_case_orig_ig1(POINT centreCasePionChoisi)
 	draw_fill_circle(centreCasePionChoisi,LARG_CASE/2,COULEUR_CASE_JOUEURS);
 }
 
-void enlever_pion_qui_subit_attaque_ig1(POINT centrePionChoisi,int positionCasesLibresAttaque)
+void enlever_pion_qui_subit_attaque_ig1(POINT centrePionChoisi, POINT centreCaseDestination)
 {
 	POINT centreCaseLibre;
 	
-	if(positionCasesLibresAttaque%2>0) //rond haut gauche
-	{
-		centreCaseLibre.x=centrePionChoisi.x-LARG_CASE;
-		centreCaseLibre.y=centrePionChoisi.y+LARG_CASE;
-		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);
-	}
-	
-	if(positionCasesLibresAttaque%4>1) //rond haut droite
-	{
-		centreCaseLibre.x=centrePionChoisi.x+LARG_CASE;
-		centreCaseLibre.y=centrePionChoisi.y+LARG_CASE;
-		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);
-	}
-	
-	if(positionCasesLibresAttaque%8>3) //rond bas gauche
-	{
-		centreCaseLibre.x=centrePionChoisi.x-LARG_CASE;
-		centreCaseLibre.y=centrePionChoisi.y-LARG_CASE;
-		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);	
-	}
-	
-	if(positionCasesLibresAttaque%16>7) //rond bas droite
-	{
-		centreCaseLibre.x=centrePionChoisi.x+LARG_CASE;
-		centreCaseLibre.y=centrePionChoisi.y-LARG_CASE;
-		draw_fill_circle(centreCaseLibre,LARG_CASE/2,COULEUR_CASE_JOUEURS);	
-	}
+	centreCaseLibre.x = (centrePionChoisi.x + centreCaseDestination.x) / 2;
+	centreCaseLibre.y = (centrePionChoisi.y + centreCaseDestination.y) / 2;
+	draw_fill_circle(centreCaseLibre, LARG_CASE/2, COULEUR_CASE_JOUEURS);
 	
 	affiche_all();
 }
@@ -1037,25 +1013,20 @@ BOOL redemander_partie()
  * \/ CONTRÔLEUR \/
  */
 
-void bouger_pion_choisi_ig1(POINT centreCasePionChoisi,POINT centreCaseDestination,NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur,int positionCasesLibres,int positionCasesLibresAttaque, int *nbrePionJoueur)
+void bouger_pion_choisi_ig1(POINT centreCasePionChoisi, POINT centreCaseDestination, NUMCASE numCaseOrig, NUMCASE numCaseDestination, COULP couleurJoueur,int positionCasesLibres, int positionCasesLibresAttaque, int *nbrePionJoueur)
 {
-	
-	effacer_cases_libres_choisies_ig1(centreCasePionChoisi,positionCasesLibres,positionCasesLibresAttaque);
+	effacer_cases_libres_choisies_ig1(centreCasePionChoisi, positionCasesLibres, positionCasesLibresAttaque);
 	effacer_piece_case_orig_ig1(centreCasePionChoisi);
-	
-	if( est_coup_valide_deplacement(numCaseOrig,numCaseDestination) )
+	if( est_coup_valide_deplacement(numCaseOrig, numCaseDestination) )
 	{
 		effectuer_deplacement_dans_tableau_logique(numCaseOrig,numCaseDestination,couleurJoueur);
 	}
-	
 	else if( est_coup_valide_attaque(numCaseOrig,numCaseDestination,couleurJoueur) )
 	{
-		enlever_pion_qui_subit_attaque_ig1(centreCasePionChoisi,positionCasesLibresAttaque);
-		effectuer_attaque_dans_tableau_logique(numCaseOrig,numCaseDestination,couleurJoueur,nbrePionJoueur);
+		enlever_pion_qui_subit_attaque_ig1(centreCasePionChoisi, centreCaseDestination);
+		effectuer_attaque_dans_tableau_logique(numCaseOrig, numCaseDestination, couleurJoueur, nbrePionJoueur);
 	}
-	
 	afficher_piece_ig1(centreCaseDestination,numCaseDestination.ligne,numCaseDestination.colonne);
-	
 	affiche_all();
 }
 
@@ -1179,7 +1150,6 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 				break;
 		}while(1);
 	}while(1);
-	affiche_all();
 }
 
 /*
@@ -1191,12 +1161,12 @@ BOOL est_fin_jeu_dans_terminal(COULP couleurJoueur, int nbrePionJoueur)
 {
 	if(tester_fin_jeu(couleurJoueur, nbrePionJoueur) == 1)
 	{
-		printf("Le joueur %d est bloqué. Le joueur %d a gagné !\n", couleurJoueur, (couleurJoueur == coul1) ? coul2 : coul1);
+		printf("Le joueur %d n'a plus de pion. Le joueur %d a gagné !\n", couleurJoueur, (couleurJoueur == coul1) ? coul2 : coul1);
 		return 1;
 	}
 	else if(tester_fin_jeu(couleurJoueur, nbrePionJoueur) == 2)
 	{
-		printf("Le joueur %d n'a plus de pion. Le joueur %d a gagné !\n", couleurJoueur, (couleurJoueur == coul1) ? coul2 : coul1);
+		printf("Le joueur %d est bloqué. Le joueur %d a gagné !\n", couleurJoueur, (couleurJoueur == coul1) ? coul2 : coul1);
 		return 1;
 	}
 	return 0;
@@ -1205,8 +1175,8 @@ BOOL est_fin_jeu_dans_terminal(COULP couleurJoueur, int nbrePionJoueur)
 int main()
 {
 	BOOL rejouer = true;
-	int igChoisi = 0, nbrePionJ1 = 20, nbrePionJ2 = 20;
-	int *nbrePionAutreJoueur = &nbrePionJ2;
+	int igChoisi, nbrePionJ1, nbrePionJ2;
+	int *nbrePionAutreJoueur;
 	COULP couleurJoueur = coul1;
 	
 	init_graphics(LARG_FENETRE,HAUT_FENETRE);
@@ -1214,6 +1184,11 @@ int main()
 	
 	do
 	{
+		igChoisi = 0;
+		nbrePionJ1 = 20, nbrePionJ2 = 20;
+		nbrePionAutreJoueur = &nbrePionJ2;
+		couleurJoueur = coul1;
+		
 		initialiser_plateau();
 		afficher_ecran_titre(&igChoisi);
 		afficher_ecran_jeu_selon_ig(igChoisi);
