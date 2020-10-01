@@ -79,7 +79,8 @@ int donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur)
 	if(depart.ligne < 8)
 	{
 		if( ( plateau[depart.colonne][depart.ligne].typeP == dame )
-		|| ( plateau[depart.colonne][depart.ligne].coulP == coul1 ))
+		||
+		( plateau[depart.colonne][depart.ligne].coulP == coul1 ))
 		{
 			arrivee.ligne = depart.ligne + 2;
 			arrivee.colonne = depart.colonne - 2;
@@ -93,7 +94,8 @@ int donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur)
 	if(depart.ligne > 1)
 	{
 		if( ( plateau[depart.colonne][depart.ligne].typeP == dame )
-		|| ( plateau[depart.colonne][depart.ligne].coulP == coul2 ))
+		||
+		( plateau[depart.colonne][depart.ligne].coulP == coul2 ))
 		{
 			arrivee.ligne = depart.ligne - 2;
 			arrivee.colonne = depart.colonne - 2;
@@ -115,7 +117,8 @@ int donner_position_cases_libres_deplacement(NUMCASE depart)
 	if(depart.ligne < 9)
 	{
 		if( ( plateau[depart.colonne][depart.ligne].typeP == dame )
-		|| ( plateau[depart.colonne][depart.ligne].coulP == coul1 ))
+		||
+		( plateau[depart.colonne][depart.ligne].coulP == coul1 ))
 		{
 			arrivee.ligne = depart.ligne + 1;
 			arrivee.colonne = depart.colonne - 1;
@@ -129,7 +132,8 @@ int donner_position_cases_libres_deplacement(NUMCASE depart)
 	if(depart.ligne > 0)
 	{
 		if( ( plateau[depart.colonne][depart.ligne].typeP == dame )
-		|| ( plateau[depart.colonne][depart.ligne].coulP == coul2 ))
+		||
+		( plateau[depart.colonne][depart.ligne].coulP == coul2 ))
 		{
 			arrivee.ligne = depart.ligne - 1;
 			arrivee.colonne = depart.colonne - 1;
@@ -826,6 +830,61 @@ void enlever_pion_qui_subit_attaque_ig1(POINT centrePionChoisi,int positionCases
 	affiche_all();
 }
 
+/*		-- Choix attaque multiple --		*/
+
+void afficher_choix_multi_attaque(POINT ptMultiAtk1, POINT ptMultiAtk2, POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2)
+{
+	aff_pol("Attaque possible", 20, ptMultiAtk1, blanc);
+	aff_pol("Continuer ?", 20, ptMultiAtk2, blanc);
+	aff_pol("Oui", 20, ptOui1, vert);
+	draw_rectangle(ptOui1, ptOui2, vert);
+	aff_pol("Non", 20, ptNon1, rouge);
+	draw_rectangle(ptNon1, ptNon2, rouge);
+	affiche_all();
+	return;
+}
+
+void effacer_choix_multi_attaque(POINT P1)
+{
+	POINT P2;
+	
+	P2.x = LARG_FENETRE; P2.y = 0;
+	draw_fill_rectangle(P1, P2, rouge);
+	affiche_all();
+}
+
+BOOL recuper_choix_multi_attaque(POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2)
+{
+	POINT clicMultiAtk;
+	
+	do
+	{
+		clicMultiAtk = wait_clic();
+		if((clicMultiAtk.x > ptOui1.x) && (clicMultiAtk.x < ptOui2.x) && (clicMultiAtk.y < ptOui1.y) && (clicMultiAtk.y > ptOui2.y))
+			return 1;
+		else if((clicMultiAtk.x > ptNon1.x) && (clicMultiAtk.x < ptNon2.x) && (clicMultiAtk.y < ptNon1.y) && (clicMultiAtk.y > ptNon2.y))
+			return 0;
+	}while(1);
+}
+
+BOOL est_acceptee_multi_attaque()
+{
+	BOOL choix;
+	POINT ptMultiAtk1, ptMultiAtk2, ptOui1, ptOui2, ptNon1, ptNon2;
+	
+	ptMultiAtk1.x = HAUT_FENETRE + 10; ptMultiAtk1.y = HAUT_FENETRE / 4 + 30;
+	ptMultiAtk2.x = HAUT_FENETRE + 10; ptMultiAtk2.y = HAUT_FENETRE / 4;
+	ptOui1.x = HAUT_FENETRE + 20; ptOui1.y = HAUT_FENETRE / 4 - 30;
+	ptOui2.x = HAUT_FENETRE + 60; ptOui2.y = HAUT_FENETRE / 4 - 60;
+	ptNon1.x = HAUT_FENETRE + 10 + 100; ptNon1.y = HAUT_FENETRE / 4 - 30;
+	ptNon2.x = HAUT_FENETRE + 10 + 140; ptNon2.y = HAUT_FENETRE / 4 - 60;
+	
+	afficher_choix_multi_attaque(ptMultiAtk1, ptMultiAtk2, ptOui1, ptOui2, ptNon1, ptNon2);
+	choix = recuper_choix_multi_attaque(ptOui1, ptOui2, ptNon1, ptNon2);
+	effacer_choix_multi_attaque(ptMultiAtk1);
+	return choix;
+}
+
 /*		-- Afficher Ecran Titre --		*/
 
 void afficher_titre()
@@ -1081,7 +1140,6 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 	POINT centreCasePionChoisi, centreCaseDestination;
 	NUMCASE numCasePionChoisi, numCaseDestination;
 	BOOL multiAttaque = 0;
-	
 	do
 	{
 		effacer_cases_libres_choisies_ig1(centreCasePionChoisi,positionCasesLibres,positionCasesLibresAttaque);
@@ -1100,24 +1158,14 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 				bouger_pion_choisi_ig1(centreCasePionChoisi, centreCaseDestination, numCasePionChoisi, numCaseDestination, couleurJoueur, positionCasesLibres, positionCasesLibresAttaque, nbrePionJoueur);
 				if(donner_position_cases_libres_attaque(numCaseDestination, couleurJoueur))
 				{
-					
-					// Cette partie doit être revue
-					printf("Voulez-vous continuer le tour en attaquant de nouveau ? (o/n)\n"); // Ici, il faut demander au joueur s'il veut attaquer une autre fois
-					char choix;
-					scanf(" %c", &choix);
-					if(choix == 'n')
-					{
-						printf("OK, tour terminé !\n");
-						return;
-					}
-					else
+					if(est_acceptee_multi_attaque())
 					{
 						numCasePionChoisi.ligne = numCaseDestination.ligne;
 						numCasePionChoisi.colonne = numCaseDestination.colonne;
-						printf("OK, vous allez pouvoir attaquer de nouveau !\n");
 						multiAttaque = 1;
 					}
-					// Cette partie doit être revue
+					else
+						return;
 				}
 				else
 					return;

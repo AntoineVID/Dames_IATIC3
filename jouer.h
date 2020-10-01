@@ -130,6 +130,13 @@ void choisir_destination_ig1(POINT centreCasePionChoisi,POINT *centreCaseDestina
 void effacer_piece_case_orig_ig1(POINT centreCasePionChoisi);
 void enlever_pion_qui_subit_attaque_ig1(POINT centreCasePionChoisi,int positionCasesLibresAttaque);
 
+/* Choix attaque multiple */
+
+void afficher_choix_multi_attaque(POINT ptMultiAtk1, POINT ptMultiAtk2, POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2);
+void effacer_choix_multi_attaque(POINT P1);
+BOOL recuper_choix_multi_attaque(POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2);
+BOOL est_acceptee_multi_attaque();
+
 /* Ecran titre */
 void afficher_titre();
 void afficher_exemple_ecran_titre_ig1(POINT ptTitreIg1);
