@@ -1126,12 +1126,15 @@ BOOL savoir_si_rejouer_partie(POINT ptOui,POINT ptNon,POINT clicRedemanderPartie
 	return rejouer;
 }
 
-void trouver_cases_libres_ig1(POINT centrePionChoisi,NUMCASE numCasePionChoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque)
+void trouver_cases_libres_ig1(POINT centrePionChoisi, NUMCASE numCasePionChoisi, COULP couleurJoueur, int *positionCasesLibres, int *positionCasesLibresAttaque, BOOL est_multiAttaque)
 {
-	*positionCasesLibres=donner_position_cases_libres_deplacement(numCasePionChoisi);
-	*positionCasesLibresAttaque=donner_position_cases_libres_attaque(numCasePionChoisi,couleurJoueur);
+	if( !est_multiAttaque)
+		*positionCasesLibres = donner_position_cases_libres_deplacement(numCasePionChoisi);
+	else
+		*positionCasesLibres = 0;
+	*positionCasesLibresAttaque = donner_position_cases_libres_attaque(numCasePionChoisi,couleurJoueur);
 	
-	afficher_cases_libres_ig1(centrePionChoisi,*positionCasesLibres,*positionCasesLibresAttaque);
+	afficher_cases_libres_ig1(centrePionChoisi, *positionCasesLibres, *positionCasesLibresAttaque);
 }
 
 void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
@@ -1139,16 +1142,16 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 	int positionCasesLibres = 0, positionCasesLibresAttaque = 0;
 	POINT centreCasePionChoisi, centreCaseDestination;
 	NUMCASE numCasePionChoisi, numCaseDestination;
-	BOOL multiAttaque = 0;
+	BOOL est_multiAttaque = FALSE;
 	do
 	{
 		effacer_cases_libres_choisies_ig1(centreCasePionChoisi,positionCasesLibres,positionCasesLibresAttaque);
 		choisir_pion_valide(couleurJoueur,&centreCasePionChoisi,&numCasePionChoisi);
-		trouver_cases_libres_ig1(centreCasePionChoisi,numCasePionChoisi,couleurJoueur,&positionCasesLibres,&positionCasesLibresAttaque);
+		trouver_cases_libres_ig1(centreCasePionChoisi,numCasePionChoisi,couleurJoueur,&positionCasesLibres,&positionCasesLibresAttaque, est_multiAttaque);
 		do
 		{
 			choisir_destination_ig1(centreCasePionChoisi,&centreCaseDestination,&numCaseDestination);
-			if( !multiAttaque && est_coup_valide_deplacement(numCasePionChoisi, numCaseDestination))
+			if( !est_multiAttaque && est_coup_valide_deplacement(numCasePionChoisi, numCaseDestination))
 			{
 				bouger_pion_choisi_ig1(centreCasePionChoisi, centreCaseDestination, numCasePionChoisi, numCaseDestination, couleurJoueur, positionCasesLibres, positionCasesLibresAttaque, nbrePionJoueur);
 				return;
@@ -1162,7 +1165,9 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 					{
 						numCasePionChoisi.ligne = numCaseDestination.ligne;
 						numCasePionChoisi.colonne = numCaseDestination.colonne;
-						multiAttaque = 1;
+						est_multiAttaque = TRUE;
+						centreCasePionChoisi = convertir_numCase_en_centreCase(numCasePionChoisi);
+						trouver_cases_libres_ig1(centreCasePionChoisi,numCasePionChoisi,couleurJoueur,&positionCasesLibres,&positionCasesLibresAttaque, est_multiAttaque);
 					}
 					else
 						return;
@@ -1170,7 +1175,7 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 				else
 					return;
 			}
-			else if( !multiAttaque)
+			else if( !est_multiAttaque)
 				break;
 		}while(1);
 	}while(1);

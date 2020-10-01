@@ -168,8 +168,8 @@ void choisir_pion_valide(COULP couleurPionValide,POINT *centreCasePionChoisi,NUM
 NUMCASE convertir_centreCase_en_numCase(POINT centreCase);
 POINT convertir_numCase_en_centreCase(NUMCASE numcase);
 BOOL savoir_si_rejouer_partie(POINT ptOui,POINT ptNon,POINT clicRedemanderPartie);
+void trouver_cases_libres_ig1(POINT centrePionChoisi,NUMCASE numCasePionchoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque, BOOL est_multiAttaque);
 void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur);
-void trouver_cases_libres_ig1(POINT centrePionChoisi,NUMCASE numCasePionchoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque);
 
 /*
  * /\ CONTRÔLEUR /\
