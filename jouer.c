@@ -1262,12 +1262,12 @@ void afficher_gagnant(int nbrePionJ1,int nbrePionJ2)
 	
 	if( tester_fin_jeu(coul1,nbrePionJ1) == 2)
 	{
-		aff_pol("Le joueur 1 est bloqué. Le joueur 2 gagne !",20,ptTexteGagnant,blanc);
+		aff_pol("Le joueur 1 est bloque. Le joueur 2 gagne !",20,ptTexteGagnant,blanc);
 	}
 	
 	if( tester_fin_jeu(coul2,nbrePionJ2) == 2)
 	{
-		aff_pol("Le joueur 2 est bloqué. Le joueur 1 gagne !",20,ptTexteGagnant,blanc);
+		aff_pol("Le joueur 2 est bloque. Le joueur 1 gagne !",20,ptTexteGagnant,blanc);
 	}
 	
 	affiche_all();
