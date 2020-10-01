@@ -1206,6 +1206,7 @@ void afficher_ecran_titre(BOOL *igChoisi)
 	afficher_titre();
 	afficher_ecran_titre_ig1();
 	afficher_ecran_titre_ig2();
+	afficher_choisir_interface();
 	
 	affiche_all();
 	*igChoisi=choisir_ig();
