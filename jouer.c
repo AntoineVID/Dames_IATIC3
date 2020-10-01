@@ -1042,7 +1042,7 @@ void effacer_choix_multi_attaque(POINT P1)
 	affiche_all();
 }
 
-BOOL recuper_choix_multi_attaque(POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2)
+BOOL recuperer_choix_multi_attaque(POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2)
 {
 	POINT clicMultiAtk;
 	
@@ -1069,7 +1069,7 @@ BOOL est_acceptee_multi_attaque()
 	ptNon2.x = HAUT_FENETRE + 10 + 140; ptNon2.y = HAUT_FENETRE / 4 - 60;
 	
 	afficher_choix_multi_attaque(ptMultiAtk1, ptMultiAtk2, ptOui1, ptOui2, ptNon1, ptNon2);
-	choix = recuper_choix_multi_attaque(ptOui1, ptOui2, ptNon1, ptNon2);
+	choix = recuperer_choix_multi_attaque(ptOui1, ptOui2, ptNon1, ptNon2);
 	effacer_choix_multi_attaque(ptMultiAtk1);
 	return choix;
 }
