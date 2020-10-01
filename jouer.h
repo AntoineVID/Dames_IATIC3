@@ -139,7 +139,7 @@ void enlever_pion_qui_subit_attaque_ig2(POINT centreCasePionChoisi, POINT centre
 
 void afficher_choix_multi_attaque(POINT ptMultiAtk1, POINT ptMultiAtk2, POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2);
 void effacer_choix_multi_attaque(POINT P1);
-BOOL recuper_choix_multi_attaque(POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2);
+BOOL recuperer_choix_multi_attaque(POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2);
 BOOL est_acceptee_multi_attaque();
 
 /* Ecran titre */
