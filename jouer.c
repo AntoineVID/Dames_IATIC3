@@ -475,7 +475,7 @@ void afficher_plateau_ig2()
 				numCaseIg2=convertir_numCase_ig1_vers_ig2(numCaseIg1);
 				ptCentreCase=convertir_numCase_en_centreCase(numCaseIg2);
 				
-				afficher_piece_ig2(ptCentreCase,i,j);	
+				afficher_piece_ig2(ptCentreCase,i,j);
 			}
 		}
 	}
@@ -1315,7 +1315,6 @@ BOOL redemander_partie(int nbrePionJ1,int nbrePionJ2)
 	
 	return rejouer;
 }
-
 
 /*
  * /\ VUE /\
