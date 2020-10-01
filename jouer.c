@@ -849,7 +849,7 @@ void effacer_choix_multi_attaque(POINT P1)
 	POINT P2;
 	
 	P2.x = LARG_FENETRE; P2.y = 0;
-	draw_fill_rectangle(P1, P2, rouge);
+	draw_fill_rectangle(P1, P2, noir);
 	affiche_all();
 }
 
