@@ -13,4 +13,3 @@ Couleur plateau : burlywood / saddlebrown
 
 ![Interface graphique 1](https://github.com/AntoineVID/Dames_IATIC3/blob/master/ig1.png)
 ![Interface graphique 2](https://github.com/AntoineVID/Dames_IATIC3/blob/master/ig2.png)
-![Image de référence](https://github.com/AntoineVID/Dames_IATIC3/blob/master/plateaux.png)
