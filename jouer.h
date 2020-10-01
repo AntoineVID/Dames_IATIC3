@@ -133,7 +133,7 @@ void choisir_destination_ig2(POINT centreCasePionChoisi,POINT *centreCaseDestina
 void effacer_piece_case_orig_ig1(POINT centreCasePionChoisi);
 void enlever_pion_qui_subit_attaque_ig1(POINT centreCasePionChoisi, POINT centreCaseDestination);
 void effacer_piece_case_orig_ig2(POINT centreCasePionChoisi);
-///void enlever_pion_qui_subit_attaque_ig2(POINT centreCasePionChoisi,int positionCasesLibresAttaque);
+void enlever_pion_qui_subit_attaque_ig2(POINT centreCasePionChoisi, POINT centreCaseDestination);
 
 /* Choix attaque multiple */
 
@@ -168,6 +168,7 @@ BOOL redemander_partie();
  */
 
 void bouger_pion_choisi_ig1(POINT centreCasePionChoisi,POINT centreCaseDestination,NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur,int positionCasesLibres,int positionCasesLibresAttaque, int *nbrePionJoueur);
+void bouger_pion_choisi_ig2(POINT centreCasePionChoisi,POINT centreCaseDestination,NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur,int positionCasesLibres,int positionCasesLibresAttaque, int *nbrePionJoueur);
 int choisir_ig(POINT clicChoixIg);
 void choisir_pion_valide_ig1(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi);
 void choisir_pion_valide_ig2(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi);
@@ -177,8 +178,9 @@ NUMCASE convertir_numCase_ig1_vers_ig2(NUMCASE numCaseIg1);
 NUMCASE convertir_numCase_ig2_vers_ig1(NUMCASE numCaseIg2);
 BOOL savoir_si_rejouer_partie(POINT ptOui,POINT ptNon,POINT clicRedemanderPartie);
 void trouver_cases_libres_ig1(POINT centrePionChoisi,NUMCASE numCasePionchoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque, BOOL est_multiAttaque);
-void trouver_cases_libres_ig2(POINT centrePionChoisi,NUMCASE numCasePionchoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque);
+void trouver_cases_libres_ig2(POINT centrePionChoisi,NUMCASE numCasePionchoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque, BOOL est_multiAttaque);
 void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur);
+void tour_piece_ig2(COULP couleurJoueur, int *nbrePionJoueur);
 
 /*
  * /\ CONTRÔLEUR /\
