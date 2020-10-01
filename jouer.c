@@ -483,7 +483,7 @@ void afficher_plateau_ig2()
 	affiche_all();
 }
 
-void afficher_ecran_jeu_selon_ig(int igChoisi)
+void afficher_ecran_jeu_selon_ig(BOOL igChoisi)
 {
 	fill_screen(noir);
 	
@@ -498,9 +498,9 @@ void afficher_ecran_jeu_selon_ig(int igChoisi)
 
 /*		-- Afficher Interface --		*/
 
-void afficher_interface(int igChoisi)
+void afficher_interface(BOOL igChoisi)
 {
-	POINT ptTexteTour,ptTourJoueur/*,ptNbrP1,ptNbrP2,ptAnnuler*/;
+	POINT ptTexteTour,ptTourJoueur;
 	
 	ptTexteTour.x=HAUT_FENETRE+20;ptTexteTour.y=HAUT_FENETRE-20;
 
@@ -510,23 +510,14 @@ void afficher_interface(int igChoisi)
 
 	aff_pol("A qui de jouer ?",20,ptTexteTour,blanc);
 
-
-
-	//~ ptNbrP1.x=HAUT_FENETRE+5;ptNbrP1.y=0.66*HAUT_FENETRE;
-	//~ ptNbrP2.x=HAUT_FENETRE+5;ptNbrP2.y=0.33*HAUT_FENETRE;	
-	//~ aff_pol("Nombre de pions 1",20,ptNbrP1,blanc);
-	//~ aff_pol("Nombre de pions 2",20,ptNbrP2,blanc);
-	//~ ptAnnuler.x=HAUT_FENETRE+30;ptAnnuler.y=50;
-	//~ aff_pol("Annuler coup",20,ptAnnuler,blanc); //N'afficher que si plusieurs prises
-
 	
-	if(igChoisi==1)
+	if(igChoisi==TRUE)
 	{
 		afficher_piece_triangle_haut(ptTourJoueur,COULEUR_JOUEUR1); //coul1 car le joueur 1 commence
 		afficher_piece_triangle_bas(ptTourJoueur,COULEUR_JOUEUR1); //coul1 car le joueur 1 commence
 	}
 	
-	else if(igChoisi==2)
+	else if(igChoisi==FALSE)
 	{
 		afficher_piece_rond(ptTourJoueur,COULEUR_JOUEUR1); //coul1 car le joueur 1 commence
 	}
@@ -1209,36 +1200,15 @@ void afficher_ecran_titre_ig2()
 	affiche_all();
 }
 
-
-POINT recuperer_clic_choix_ig()
+void afficher_ecran_titre(BOOL *igChoisi)
 {
-	POINT clicChoixIg={0,0};
-	
-	do{
-		clicChoixIg=wait_clic();
-	}while(
-				( (clicChoixIg.x>370) &&   (clicChoixIg.x<420) )
-			||	( (clicChoixIg.y<120) ||   (clicChoixIg.y>420) )
-			||  ( (clicChoixIg.x<70)  && ( (clicChoixIg.y>120) || (clicChoixIg.y<420) ) )
-			||  ( (clicChoixIg.x>740) && ( (clicChoixIg.y>120) || (clicChoixIg.y<420) ) )
-		  );
-	
-	return clicChoixIg;
-}
-
-void afficher_ecran_titre(int *ig)
-{
-	POINT clicChoixIg;
-	
 	fill_screen(noir);
 	afficher_titre();
 	afficher_ecran_titre_ig1();
 	afficher_ecran_titre_ig2();
 	
 	affiche_all();
-	clicChoixIg=recuperer_clic_choix_ig();
-	*ig=choisir_ig(clicChoixIg);
-	
+	*igChoisi=choisir_ig();
 }
 
 /*		-- Afficher Fin Partie --		*/
@@ -1287,21 +1257,9 @@ void afficher_texte_redemander_partie(POINT ptOui,POINT ptNon)
 	affiche_all();
 }
 
-POINT recuperer_clic_redemander_partie(POINT ptOui,POINT ptNon)
-{
-	POINT clicRedemanderPartie;
-	
-	do{
-		clicRedemanderPartie=wait_clic();
-	}while( ((clicRedemanderPartie.x<ptOui.x) && (clicRedemanderPartie.x>ptOui.x+50) && (clicRedemanderPartie.y<ptOui.y) && (clicRedemanderPartie.y>ptOui.y+50)) ||
-			((clicRedemanderPartie.x<ptNon.x) && (clicRedemanderPartie.x>ptNon.x+50) && (clicRedemanderPartie.y<ptNon.y) && (clicRedemanderPartie.y>ptNon.y+50)) );
-	
-	return clicRedemanderPartie;
-}
-
 BOOL redemander_partie(int nbrePionJ1,int nbrePionJ2)
 {
-	POINT ptOui,ptNon,clicRedemanderPartie;
+	POINT ptOui,ptNon;
 	BOOL rejouer=FALSE;
 
 	ptOui.x=(LARG_FENETRE/3)+150;ptOui.y=HAUT_FENETRE/2;
@@ -1310,8 +1268,7 @@ BOOL redemander_partie(int nbrePionJ1,int nbrePionJ2)
 	fill_screen(noir);
 	afficher_gagnant(nbrePionJ1,nbrePionJ2);
 	afficher_texte_redemander_partie(ptOui,ptNon);
-	clicRedemanderPartie=recuperer_clic_redemander_partie(ptOui,ptNon);
-	rejouer=savoir_si_rejouer_partie(ptOui,ptNon,clicRedemanderPartie);
+	rejouer=savoir_si_rejouer_partie(ptOui,ptNon);
 	
 	return rejouer;
 }
@@ -1360,17 +1317,17 @@ void bouger_pion_choisi_ig2(POINT centreCasePionChoisi, POINT centreCaseDestinat
 	affiche_all();
 }
 
-int choisir_ig(POINT clicChoixIg)
+BOOL choisir_ig()
 {
-	int ig=0;
+	POINT clicChoixIg;
 	
-	if(clicChoixIg.x<LARG_FENETRE/2)
-	{ig=1;}
-	
-	else if(clicChoixIg.x>LARG_FENETRE/2)
-	{ig=2;}
-	
-	return ig;
+	do{
+		clicChoixIg = wait_clic();
+		if( (clicChoixIg.x>70) && (clicChoixIg.x<370) && (clicChoixIg.y<420) && (clicChoixIg.y>120) )
+			return TRUE;
+		else if( (clicChoixIg.x>440) && (clicChoixIg.x<740) && (clicChoixIg.y<420) && (clicChoixIg.y>120) )
+			return FALSE;
+	}while(1);
 }
 
 void choisir_pion_valide_ig1(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi)
@@ -1448,21 +1405,16 @@ NUMCASE convertir_numCase_ig2_vers_ig1(NUMCASE numCaseIg2)
 	return numCaseIg1;
 }
 
-BOOL savoir_si_rejouer_partie(POINT ptOui,POINT ptNon,POINT clicRedemanderPartie)
+BOOL savoir_si_rejouer_partie(POINT ptOui,POINT ptNon)
 {
-	BOOL rejouer=TRUE;
-	
-	if( (clicRedemanderPartie.x>=ptOui.x) && (clicRedemanderPartie.x<=ptOui.x+40) && (clicRedemanderPartie.y>=ptOui.y-20) && (clicRedemanderPartie.y<=ptOui.y) ) //40=longueur_texte 20=hauteur_texte
-	{
-		rejouer=TRUE;
-	}
-	
-	else if( (clicRedemanderPartie.x>=ptNon.x) && (clicRedemanderPartie.x<=ptNon.x+40) && (clicRedemanderPartie.y>=ptNon.y-20) && (clicRedemanderPartie.y<=ptNon.y) ) //40=longueur_texte 20=hauteur_texte
-	{
-		rejouer=FALSE;
-	}
-	
-	return rejouer;
+	POINT clicRejouer;	
+	do{
+		clicRejouer = wait_clic();
+		if( (clicRejouer.x>ptOui.x) && (clicRejouer.x<ptOui.x+40) && (clicRejouer.y>ptOui.y-20) && (clicRejouer.y<ptOui.y) )
+			return TRUE;
+		if( (clicRejouer.x>ptNon.x) && (clicRejouer.x<ptNon.x+40) && (clicRejouer.y>ptNon.y-20) && (clicRejouer.y<ptNon.y) )
+			return FALSE;
+	}while(1);
 }
 
 void trouver_cases_libres_ig1(POINT centrePionChoisi, NUMCASE numCasePionChoisi, COULP couleurJoueur, int *positionCasesLibres, int *positionCasesLibresAttaque, BOOL est_multiAttaque)
@@ -1582,8 +1534,8 @@ void tour_piece_ig2(COULP couleurJoueur, int *nbrePionJoueur)
 
 int main()
 {
-	BOOL rejouer = TRUE;
-	int igChoisi, nbrePionJ1, nbrePionJ2;
+	BOOL rejouer = TRUE, igChoisi = TRUE;
+	int nbrePionJ1, nbrePionJ2;
 	int *nbrePionAutreJoueur;
 	COULP couleurJoueur = coul1;
 	
@@ -1592,7 +1544,7 @@ int main()
 	
 	do
 	{
-		igChoisi = 0;
+		igChoisi = TRUE;
 		nbrePionJ1 = 20, nbrePionJ2 = 20;
 		nbrePionAutreJoueur = &nbrePionJ2;
 		couleurJoueur = coul1;
@@ -1603,12 +1555,12 @@ int main()
 		do
 		{
 			nbrePionAutreJoueur = (couleurJoueur == coul1) ? &nbrePionJ2 : &nbrePionJ1;
-			if(igChoisi == 1)
+			if(igChoisi == TRUE)
 			{
 				tour_piece_ig1(couleurJoueur, nbrePionAutreJoueur);
 				changer_tour_joueur_ig1(&couleurJoueur);
 			}
-			else if(igChoisi == 2)
+			else if(igChoisi == FALSE)
 			{
 				tour_piece_ig2(couleurJoueur, nbrePionAutreJoueur);
 				changer_tour_joueur_ig2(&couleurJoueur);

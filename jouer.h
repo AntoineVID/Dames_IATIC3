@@ -103,10 +103,10 @@ void afficher_piece_ig2(POINT ptRondCentre,int ligne,int colonne);
 void afficher_case_ig2(POINT ptbgCase,POINT pthdCase,COULEUR couleur);
 void afficher_plateau_ig2();
 
-void afficher_ecran_jeu_selon_ig(int igChoisi);
+void afficher_ecran_jeu_selon_ig(BOOL igChoisi);
 
 /* Afficher interface */
-void afficher_interface(int igChoisi);
+void afficher_interface(BOOL igChoisi);
 void effacer_tour();
 
 /* Jeu principal */
@@ -149,16 +149,14 @@ void afficher_exemple_ecran_titre_ig1(POINT ptTitreIg1);
 void afficher_ecran_titre_ig1();
 void afficher_exemple_ecran_titre_ig2(POINT ptTitreIg2);
 void afficher_ecran_titre_ig2();
-POINT recuperer_clic_choix_ig();
-void afficher_ecran_titre(int *ig);
+void afficher_ecran_titre(BOOL *igChoisi);
 
 /* Afficher Fin Partie */
 void afficher_gagnant(int nbrePionJ1,int nbrePionJ2);
 
 /* Redemander partie */
 void afficher_texte_redemander_partie(POINT ptOui,POINT ptNon);
-POINT recuperer_clic_redemander_partie(POINT ptOui,POINT ptNon);
-BOOL redemander_partie();
+BOOL redemander_partie(int nbrePionJ1,int nbrePionJ2);
 
 /*
  * /\ VUE /\
@@ -172,14 +170,14 @@ BOOL redemander_partie();
 
 void bouger_pion_choisi_ig1(POINT centreCasePionChoisi,POINT centreCaseDestination,NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur,int positionCasesLibres,int positionCasesLibresAttaque, int *nbrePionJoueur);
 void bouger_pion_choisi_ig2(POINT centreCasePionChoisi,POINT centreCaseDestination,NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur,int positionCasesLibres,int positionCasesLibresAttaque, int *nbrePionJoueur);
-int choisir_ig(POINT clicChoixIg);
+int choisir_ig();
 void choisir_pion_valide_ig1(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi);
 void choisir_pion_valide_ig2(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi);
 NUMCASE convertir_centreCase_en_numCase(POINT centreCase);
 POINT convertir_numCase_en_centreCase(NUMCASE numcase);
 NUMCASE convertir_numCase_ig1_vers_ig2(NUMCASE numCaseIg1);
 NUMCASE convertir_numCase_ig2_vers_ig1(NUMCASE numCaseIg2);
-BOOL savoir_si_rejouer_partie(POINT ptOui,POINT ptNon,POINT clicRedemanderPartie);
+BOOL savoir_si_rejouer_partie(POINT ptOui,POINT ptNon);
 void trouver_cases_libres_ig1(POINT centrePionChoisi,NUMCASE numCasePionchoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque, BOOL est_multiAttaque);
 void trouver_cases_libres_ig2(POINT centrePionChoisi,NUMCASE numCasePionchoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque, BOOL est_multiAttaque);
 void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur);
