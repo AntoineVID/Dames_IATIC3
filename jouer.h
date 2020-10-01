@@ -120,15 +120,20 @@ POINT recuperer_clic_pos_plateau();
 POINT convertir_clic_en_centreCase(POINT clicGauche);
 void afficher_cases_libres_ig1(POINT centrePionChoisi,int positionCasesLibres,int positionCasesLibresAttaque);
 void effacer_cases_libres_choisies_ig1(POINT centrePionChoisi,int positionCasesLibres,int positionCasesLibresAttaque);
+void afficher_cases_libres_ig2(POINT centrePionChoisi,int positionCasesLibres,int positionCasesLibresAttaque);
+void effacer_cases_libres_choisies_ig2(POINT centrePionChoisi,int positionCasesLibres,int positionCasesLibresAttaque);
 
 /* Choisir destination */
 void afficher_texte_choix_destination();
 void effacer_texte_choix_destination();
 void choisir_destination_ig1(POINT centreCasePionChoisi,POINT *centreCaseDestination,NUMCASE *numCaseDestination);
+void choisir_destination_ig2(POINT centreCasePionChoisi,POINT *centreCaseDestination,NUMCASE *numCaseDestination);
 
 /* Bouger Pion */
 void effacer_piece_case_orig_ig1(POINT centreCasePionChoisi);
 void enlever_pion_qui_subit_attaque_ig1(POINT centreCasePionChoisi, POINT centreCaseDestination);
+void effacer_piece_case_orig_ig2(POINT centreCasePionChoisi);
+///void enlever_pion_qui_subit_attaque_ig2(POINT centreCasePionChoisi,int positionCasesLibresAttaque);
 
 /* Choix attaque multiple */
 
@@ -139,13 +144,13 @@ BOOL est_acceptee_multi_attaque();
 
 /* Ecran titre */
 void afficher_titre();
+void afficher_choisir_interface();
 void afficher_exemple_ecran_titre_ig1(POINT ptTitreIg1);
 void afficher_ecran_titre_ig1();
 void afficher_exemple_ecran_titre_ig2(POINT ptTitreIg2);
 void afficher_ecran_titre_ig2();
 POINT recuperer_clic_choix_ig();
 void afficher_ecran_titre(int *ig);
-
 
 /* Redemander partie */
 void afficher_texte_redemander_partie(POINT ptOui,POINT ptNon);
@@ -164,11 +169,15 @@ BOOL redemander_partie();
 
 void bouger_pion_choisi_ig1(POINT centreCasePionChoisi,POINT centreCaseDestination,NUMCASE numCaseOrig,NUMCASE numCaseDestination,COULP couleurJoueur,int positionCasesLibres,int positionCasesLibresAttaque, int *nbrePionJoueur);
 int choisir_ig(POINT clicChoixIg);
-void choisir_pion_valide(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi);
+void choisir_pion_valide_ig1(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi);
+void choisir_pion_valide_ig2(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi);
 NUMCASE convertir_centreCase_en_numCase(POINT centreCase);
 POINT convertir_numCase_en_centreCase(NUMCASE numcase);
+NUMCASE convertir_numCase_ig1_vers_ig2(NUMCASE numCaseIg1);
+NUMCASE convertir_numCase_ig2_vers_ig1(NUMCASE numCaseIg2);
 BOOL savoir_si_rejouer_partie(POINT ptOui,POINT ptNon,POINT clicRedemanderPartie);
 void trouver_cases_libres_ig1(POINT centrePionChoisi,NUMCASE numCasePionchoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque, BOOL est_multiAttaque);
+void trouver_cases_libres_ig2(POINT centrePionChoisi,NUMCASE numCasePionchoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque);
 void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur);
 
 /*

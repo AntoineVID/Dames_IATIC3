@@ -418,7 +418,6 @@ void afficher_piece_ig2(POINT ptRondCentre,int ligne,int colonne)
 {
 	COULEUR couleur;
 	couleur = convertir_joueur_couleur(plateau[colonne][ligne].coulP);
-	
 	if( (plateau[colonne][ligne].typeP == pion) || (plateau[colonne][ligne].typeP == dame) )
 	{
 		afficher_piece_rond(ptRondCentre,couleur);
@@ -752,6 +751,185 @@ void effacer_cases_libres_choisies_ig1(POINT centrePionChoisi,int positionCasesL
 	affiche_all();
 }
 
+void afficher_cases_libres_ig2(POINT centrePionChoisi,int positionCasesLibres,int positionCasesLibresAttaque)
+{
+	POINT centrebgCaseLibre,centrehdCaseLibre;
+	
+	/* Cases Normales */
+	if(positionCasesLibres%2>0) //rond haut droite (à la base haut gauche)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x+0.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y+0.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x+1.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y+1.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_LIBRE);
+		
+	}
+	
+	if(positionCasesLibres%4>1) //rond bas droit (à la base haut droit)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x+0.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y-0.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x+1.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y-1.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_LIBRE);
+	}
+	
+	if(positionCasesLibres%8>3) //rond haut gauche (à la base bas gauche)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x-1.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y+0.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x-0.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y+1.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_LIBRE);
+	}
+	
+	if(positionCasesLibres%16>7) //rond bas gauche ( à la base bas droite)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x-0.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y-0.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x-1.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y-1.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_LIBRE);
+	}
+	
+	/* Cases Attaque */
+	if(positionCasesLibresAttaque%2>0) //rond haut droite (à la base haut gauche)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x+1.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y+1.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x+2.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y+2.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_LIBRE);
+		
+	}
+	
+	if(positionCasesLibresAttaque%4>1) //rond bas droit (à la base haut droit)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x+1.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y-1.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x+2.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y-2.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_LIBRE);
+	}
+	
+	if(positionCasesLibresAttaque%8>3) //rond haut gauche (à la base bas gauche)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x-2.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y+1.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x-1.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y+2.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_LIBRE);
+	}
+	
+	if(positionCasesLibresAttaque%16>7) //rond bas gauche ( à la base bas droite)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x-1.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y-1.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x-2.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y-2.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_LIBRE);
+	}
+	
+	affiche_all();
+}
+
+void effacer_cases_libres_choisies_ig2(POINT centrePionChoisi,int positionCasesLibres,int positionCasesLibresAttaque)
+{
+	POINT centrebgCaseLibre,centrehdCaseLibre;
+	
+	/* Cases Normales */
+	if(positionCasesLibres%2>0) //rond haut droite (à la base haut gauche)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x+0.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y+0.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x+1.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y+1.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_JOUEURS);
+	}
+	
+	if(positionCasesLibres%4>1) //rond bas droit (à la base haut droit)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x+0.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y-0.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x+1.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y-1.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_JOUEURS);
+	}
+	
+	if(positionCasesLibres%8>3) //rond haut gauche (à la base bas gauche)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x-1.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y+0.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x-0.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y+1.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_JOUEURS);
+	}
+	
+	if(positionCasesLibres%16>7) //rond bas gauche ( à la base bas droite)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x-0.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y-0.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x-1.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y-1.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_JOUEURS);
+	}
+	
+	/* Cases Attaque */
+	if(positionCasesLibresAttaque%2>0) //rond haut droite (à la base haut gauche)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x+1.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y+1.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x+2.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y+2.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_JOUEURS);
+	}
+
+	if(positionCasesLibresAttaque%4>1) //rond bas droit (à la base haut droit)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x+1.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y-1.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x+2.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y-2.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_JOUEURS);
+	}
+	
+	if(positionCasesLibresAttaque%8>3) //rond haut gauche (à la base bas gauche)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x-2.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y+1.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x-1.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y+2.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_JOUEURS);
+	}
+	
+	if(positionCasesLibresAttaque%16>7) //rond bas gauche ( à la base bas droite)
+	{
+		centrebgCaseLibre.x=centrePionChoisi.x-1.5*LARG_CASE;
+		centrebgCaseLibre.y=centrePionChoisi.y-1.5*LARG_CASE;
+		centrehdCaseLibre.x=centrePionChoisi.x-2.5*LARG_CASE;
+		centrehdCaseLibre.y=centrePionChoisi.y-2.5*LARG_CASE;
+		
+		draw_fill_rectangle(centrebgCaseLibre,centrehdCaseLibre,COULEUR_CASE_JOUEURS);
+	}
+	affiche_all();
+}
+
 /*		-- Choisir destination --		*/
 
 void afficher_texte_choix_destination()
@@ -788,6 +966,19 @@ void choisir_destination_ig1(POINT centreCasePionChoisi,POINT *centreCaseDestina
 	
 }
 
+void choisir_destination_ig2(POINT centreCasePionChoisi,POINT *centreCaseDestination,NUMCASE *numCaseDestination)
+{
+	POINT clicCaseDestination;
+	
+	afficher_texte_choix_destination();
+	clicCaseDestination=recuperer_clic_pos_plateau();
+	effacer_texte_choix_destination();
+
+	*centreCaseDestination=convertir_clic_en_centreCase(clicCaseDestination);
+	*numCaseDestination=convertir_centreCase_en_numCase(*centreCaseDestination);
+	*numCaseDestination=convertir_numCase_ig2_vers_ig1(*numCaseDestination);
+}
+
 /*		-- Bouger Pion --		*/
 
 void effacer_piece_case_orig_ig1(POINT centreCasePionChoisi)
@@ -804,6 +995,11 @@ void enlever_pion_qui_subit_attaque_ig1(POINT centrePionChoisi, POINT centreCase
 	draw_fill_circle(centreCaseLibre, LARG_CASE/2, COULEUR_CASE_JOUEURS);
 	
 	affiche_all();
+}
+
+void effacer_piece_case_orig_ig2(POINT centreCasePionChoisi)
+{
+	draw_fill_circle(centreCasePionChoisi,LONGUEUR_PIECE/2,COULEUR_CASE_JOUEURS);
 }
 
 /*		-- Choix attaque multiple --		*/
@@ -872,20 +1068,57 @@ void afficher_titre()
 	aff_pol("Projet Dames IATIC3 - CORBEIL Alex / VIDAL Antoine",20,ptTitre,blanc);
 }
 
+void afficher_choisir_interface()
+{
+	POINT ptTexteChoisirInterface;
+	
+	ptTexteChoisirInterface.x=130;
+	ptTexteChoisirInterface.y=30;
+	
+	aff_pol("Cliquer dans le plateau dans lequel vous voulez jouer",20,ptTexteChoisirInterface,blanc);
+}
+
 void afficher_exemple_ecran_titre_ig1(POINT ptTitreIg1)
 {
-	POINT ptCaseTitreJ1,ptCaseTitreJ2;
+	int i=0,j=0;
+	POINT ptCentreCase;
 	
-	ptCaseTitreJ1.x=ptTitreIg1.x;ptCaseTitreJ1.y=ptTitreIg1.y-100;
-	ptCaseTitreJ2.x=ptCaseTitreJ1.x+2*LARG_CASE;ptCaseTitreJ2.y=ptCaseTitreJ1.y;
+	ptCentreCase.x=100;ptCentreCase.y=150;
 	
-	afficher_case_ig1(ptCaseTitreJ1,COULEUR_CASE_JOUEURS);
-	afficher_piece_triangle_haut(ptCaseTitreJ1,COULEUR_JOUEUR1);
-	afficher_piece_triangle_bas(ptCaseTitreJ1,COULEUR_JOUEUR1);
+	for(i=0;i<5;i++)
+	{
+		for(j=0;j<5;j++)
+		{
+			if ( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) ) //Si les coordonnées sont toutes les 2 paires ou toutes les 2 impaires
+			{
+				afficher_case_ig1(ptCentreCase,COULEUR_CASE_JOUEURS);
+				
+				if(i<2)
+				{
+					afficher_piece_triangle_haut(ptCentreCase,COULEUR_JOUEUR1);
+					afficher_piece_triangle_bas(ptCentreCase,COULEUR_JOUEUR1);
+				}
+				
+				if(i>2)
+				{
+					afficher_piece_triangle_haut(ptCentreCase,COULEUR_JOUEUR2);
+					afficher_piece_triangle_bas(ptCentreCase,COULEUR_JOUEUR2);	
+				}
+			}
+			
+			else
+			{
+				afficher_case_ig1(ptCentreCase,COULEUR_CASE_VIDE);
+			}
+		
+			ptCentreCase.x+=LARG_CASE;
+		}
+		
+		ptCentreCase.x=100;
+		ptCentreCase.y+=LARG_CASE;
+	}
 	
-	afficher_case_ig1(ptCaseTitreJ2,COULEUR_CASE_VIDE);
-	afficher_piece_triangle_haut(ptCaseTitreJ2,COULEUR_JOUEUR2);
-	afficher_piece_triangle_bas(ptCaseTitreJ2,COULEUR_JOUEUR2);
+	affiche_all();
 }
 
 void afficher_ecran_titre_ig1()
@@ -901,23 +1134,51 @@ void afficher_ecran_titre_ig1()
 
 void afficher_exemple_ecran_titre_ig2(POINT ptTitreIg2)
 {
-	POINT ptCasebgJ1,ptCasehdJ1,ptCasebgJ2,ptCasehdJ2,ptCentreCaseJ1,ptCentreCaseJ2;
+	int i=0,j=0;
+	POINT ptbgCase,pthdCase,ptCentreCase;
 
-	ptCasebgJ1.x=ptTitreIg2.x-35;ptCasebgJ1.y=ptTitreIg2.y-125; // 35 et 125 pour "centrer"
-	ptCasehdJ1.x=ptCasebgJ1.x+LARG_CASE;ptCasehdJ1.y=ptCasebgJ1.y+LARG_CASE;
-	
-	ptCasebgJ2.x=ptCasebgJ1.x+2*LARG_CASE;ptCasebgJ2.y=ptCasebgJ1.y;
-	ptCasehdJ2.x=ptCasebgJ2.x+LARG_CASE;ptCasehdJ2.y=ptCasebgJ2.y+LARG_CASE;
-	
-	ptCentreCaseJ1.x=ptCasebgJ1.x+LARG_CASE/2;ptCentreCaseJ1.y=ptCasebgJ1.y+LARG_CASE/2;
-	ptCentreCaseJ2.x=ptCasebgJ2.x+LARG_CASE/2;ptCentreCaseJ2.y=ptCasebgJ2.y+LARG_CASE/2;
+	ptbgCase.x=440;ptbgCase.y=120;
+	pthdCase.x=ptbgCase.x+LARG_CASE;pthdCase.y=ptbgCase.y+LARG_CASE;
+	ptCentreCase.x=440+LARG_CASE/2;ptCentreCase.y=120+LARG_CASE/2;
 
+	for(i=0;i<5;i++)
+	{
+		for(j=0;j<5;j++)
+		{
+			if( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) ) //Si les coordonnées sont toutes les 2 paires ou toutes les 2 impaires
+			{
+				afficher_case_ig2(ptbgCase,pthdCase,COULEUR_CASE_VIDE);
+				
+				if(j<2)
+				{
+					afficher_piece_rond(ptCentreCase,COULEUR_JOUEUR1);
+				}
+				
+				if(j>2)
+				{
+					afficher_piece_rond(ptCentreCase,COULEUR_JOUEUR2);
+				}
+			}
+			
+			else
+			{
+				afficher_case_ig2(ptbgCase,pthdCase,COULEUR_CASE_JOUEURS);
+			}
+			
+			ptCentreCase.x+=LARG_CASE;
 
-	afficher_case_ig2(ptCasebgJ1,ptCasehdJ1,COULEUR_CASE_JOUEURS);
-	afficher_piece_rond(ptCentreCaseJ1,COULEUR_JOUEUR1);
+			ptbgCase.x+=LARG_CASE;
+			pthdCase.x+=LARG_CASE;
+		}
+		
+		ptCentreCase.x=440+LARG_CASE/2;
+		ptCentreCase.y+=LARG_CASE;
+		
+		ptbgCase.x=440;ptbgCase.y+=LARG_CASE;
+		pthdCase.x=ptbgCase.x+LARG_CASE;pthdCase.y+=LARG_CASE;
+	}
 	
-	afficher_case_ig2(ptCasebgJ2,ptCasehdJ2,COULEUR_CASE_VIDE);
-	afficher_piece_rond(ptCentreCaseJ2,COULEUR_JOUEUR2);
+	affiche_all();
 }
 
 void afficher_ecran_titre_ig2()
@@ -931,13 +1192,19 @@ void afficher_ecran_titre_ig2()
 	affiche_all();
 }
 
+
 POINT recuperer_clic_choix_ig()
 {
 	POINT clicChoixIg={0,0};
 	
 	do{
 		clicChoixIg=wait_clic();
-	}while( (clicChoixIg.y>HAUT_FENETRE-50) ); //A changer pour que le clic soit bien dans le cadre de l'interface
+	}while(
+				( (clicChoixIg.x>370) &&   (clicChoixIg.x<420) )
+			||	( (clicChoixIg.y<120) ||   (clicChoixIg.y>420) )
+			||  ( (clicChoixIg.x<70)  && ( (clicChoixIg.y>120) || (clicChoixIg.y<420) ) )
+			||  ( (clicChoixIg.x>740) && ( (clicChoixIg.y>120) || (clicChoixIg.y<420) ) )
+		  );
 	
 	return clicChoixIg;
 }
@@ -1043,7 +1310,7 @@ int choisir_ig(POINT clicChoixIg)
 	return ig;
 }
 
-void choisir_pion_valide(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi)
+void choisir_pion_valide_ig1(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi)
 {
 	COULP couleurPionChoisi;
 	POINT clicPionChoisi;
@@ -1054,6 +1321,24 @@ void choisir_pion_valide(COULP couleurPionValide,POINT *centreCasePionChoisi,NUM
 			clicPionChoisi=recuperer_clic_pos_plateau();
 			*centreCasePionChoisi=convertir_clic_en_centreCase(clicPionChoisi);
 			*numCasePionChoisi=convertir_centreCase_en_numCase(*centreCasePionChoisi);
+			couleurPionChoisi=plateau[numCasePionChoisi->colonne][numCasePionChoisi->ligne].coulP;
+		}while(couleurPionChoisi!=couleurPionValide);
+		
+	}while( est_bloque(*numCasePionChoisi,couleurPionChoisi) );
+}
+
+void choisir_pion_valide_ig2(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi)
+{
+	COULP couleurPionChoisi;
+	POINT clicPionChoisi;
+	
+	do{
+		
+		do{
+			clicPionChoisi=recuperer_clic_pos_plateau();
+			*centreCasePionChoisi=convertir_clic_en_centreCase(clicPionChoisi);
+			*numCasePionChoisi=convertir_centreCase_en_numCase(*centreCasePionChoisi);
+			*numCasePionChoisi=convertir_numCase_ig2_vers_ig1(*numCasePionChoisi);
 			couleurPionChoisi=plateau[numCasePionChoisi->colonne][numCasePionChoisi->ligne].coulP;
 		}while(couleurPionChoisi!=couleurPionValide);
 		
@@ -1078,6 +1363,26 @@ POINT convertir_numCase_en_centreCase(NUMCASE numcase)
 	centreCase.y=(numcase.ligne*LARG_CASE)+(LARG_CASE/2);
 	
 	return centreCase;
+}
+
+NUMCASE convertir_numCase_ig1_vers_ig2(NUMCASE numCaseIg1)
+{
+	NUMCASE numCaseIg2;
+
+	numCaseIg2.ligne=9-numCaseIg1.colonne; // -9 ici car ligne et colonne sont inversées
+	numCaseIg2.colonne=numCaseIg1.ligne;
+
+	return numCaseIg2;
+}
+
+NUMCASE convertir_numCase_ig2_vers_ig1(NUMCASE numCaseIg2)
+{
+	NUMCASE numCaseIg1;
+
+	numCaseIg1.ligne=numCaseIg2.colonne;
+	numCaseIg1.colonne=9-numCaseIg2.ligne; // -9 ici car ligne et colonne sont inversées
+
+	return numCaseIg1;
 }
 
 BOOL savoir_si_rejouer_partie(POINT ptOui,POINT ptNon,POINT clicRedemanderPartie)
@@ -1108,6 +1413,14 @@ void trouver_cases_libres_ig1(POINT centrePionChoisi, NUMCASE numCasePionChoisi,
 	afficher_cases_libres_ig1(centrePionChoisi, *positionCasesLibres, *positionCasesLibresAttaque);
 }
 
+void trouver_cases_libres_ig2(POINT centrePionChoisi,NUMCASE numCasePionChoisi,COULP couleurJoueur,int *positionCasesLibres,int *positionCasesLibresAttaque)
+{
+	*positionCasesLibres=donner_position_cases_libres_deplacement(numCasePionChoisi);
+	*positionCasesLibresAttaque=donner_position_cases_libres_attaque(numCasePionChoisi,couleurJoueur);
+	
+	afficher_cases_libres_ig2(centrePionChoisi,*positionCasesLibres,*positionCasesLibresAttaque);
+}
+
 void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 {
 	int positionCasesLibres = 0, positionCasesLibresAttaque = 0;
@@ -1117,7 +1430,7 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 	do
 	{
 		effacer_cases_libres_choisies_ig1(centreCasePionChoisi,positionCasesLibres,positionCasesLibresAttaque);
-		choisir_pion_valide(couleurJoueur,&centreCasePionChoisi,&numCasePionChoisi);
+		choisir_pion_valide_ig1(couleurJoueur,&centreCasePionChoisi,&numCasePionChoisi);
 		trouver_cases_libres_ig1(centreCasePionChoisi,numCasePionChoisi,couleurJoueur,&positionCasesLibres,&positionCasesLibresAttaque, est_multiAttaque);
 		do
 		{
