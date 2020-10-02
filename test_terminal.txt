@@ -27,3 +27,15 @@ B devient dame :
 B test manger en étant dame :
 
 1 3 2 4 0 6 1 5 2 4 3 5 1 5 0 4 0 2 1 3 1 7 0 6 1 3 2 4 2 8 1 7 2 2 1 3 0 4 2 2 1 1 0 2 2 6 4 4 0 0 1 1 2 2 0 0 2 0 1 1 0 0 2 2
+
+
+			plateau[i][j].typeP = vide;
+			plateau[i][j].coulP = aucune;
+			plateau[0][0].typeP = pion;
+			plateau[0][0].coulP = coul1;
+			plateau[2][0].typeP = pion;
+			plateau[2][0].coulP = coul1;
+			plateau[5][5].typeP = pion;
+			plateau[5][5].coulP = coul1;
+			plateau[1][1].typeP = pion;
+			plateau[1][1].coulP = coul2;
