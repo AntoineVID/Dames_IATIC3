@@ -18,6 +18,9 @@
 #define COULEUR_CASE_JOUEURS saddlebrown
 #define COULEUR_CASE_VIDE burlywood
 
+typedef enum TYPEDEFAITE{
+	peutJouer, aucunPion, pionsBloques
+} TYPEDEFAITE;
 
 typedef enum TYPEP{
 	vide, pion, dame
@@ -45,33 +48,23 @@ typedef struct NUMCASE{
 
 /* Manipulation du tableau logique */
 
-void changer_etat_case_tableau_logique(NUMCASE numCase, TYPEP type, COULP coul);
-
-void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur, int *nbrePionJoueur);
-
-void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur);
-
+void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, int *nbrePionJoueur);
+void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee);
 void initialiser_plateau();
 
 /* Vérification des possibilités d'attaques et de déplacements */
 
-int donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur);
-
+int donner_position_cases_libres_attaque(NUMCASE depart);
 int donner_position_cases_libres_deplacement(NUMCASE depart);
-
-BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleurJoueur);
-
+BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination);
 BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination);
 
 /* Vérification de possibilité de jeu et fin de partie */
 
-BOOL est_bloque(NUMCASE depart, COULP couleurJoueur);
-
+BOOL est_bloque(NUMCASE depart);
 BOOL est_joueur_bloque(COULP couleurJoueur, int nbrePionJoueur);
-
-int tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur);
-
-void transformer_pion_en_dame(NUMCASE pion, COULP couleurJoueur);
+TYPEDEFAITE tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur);
+void transformer_pion_en_dame(NUMCASE pion);
 
 /*
  * /\ MODÈLE /\
@@ -137,9 +130,9 @@ void enlever_pion_qui_subit_attaque_ig2(POINT centreCasePionChoisi, POINT centre
 
 /* Choix attaque multiple */
 
-void afficher_choix_multi_attaque(POINT ptMultiAtk1, POINT ptMultiAtk2, POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2);
-void effacer_choix_multi_attaque(POINT P1);
-BOOL recuperer_choix_multi_attaque(POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2);
+void afficher_choix_multi_attaque();
+void effacer_choix_multi_attaque();
+BOOL recuperer_choix_multi_attaque();
 BOOL est_acceptee_multi_attaque();
 
 /* Ecran titre */

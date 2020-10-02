@@ -13,30 +13,29 @@ PIECE plateau[10][10];
 
 /* Manipulation du tableau logique */
 
-void changer_etat_case_tableau_logique(NUMCASE numCase, TYPEP type, COULP coul)
-{
-	plateau[numCase.colonne][numCase.ligne].typeP = type;
-	plateau[numCase.colonne][numCase.ligne].coulP = coul;
-}
-
-void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur, int *nbrePionJoueur)
+void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, int *nbrePionJoueur)
 {
 	NUMCASE milieu;
 	milieu.ligne = (depart.ligne + arrivee.ligne) / 2;
 	milieu.colonne = (depart.colonne + arrivee.colonne) / 2;
 	
-	changer_etat_case_tableau_logique(arrivee, plateau[depart.colonne][depart.ligne].typeP, couleurJoueur);
-	changer_etat_case_tableau_logique(milieu, vide, aucune);
-	changer_etat_case_tableau_logique(depart, vide, aucune);
-	transformer_pion_en_dame(arrivee, couleurJoueur);
+	plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
+	plateau[arrivee.colonne][arrivee.ligne].coulP = plateau[depart.colonne][depart.ligne].coulP;
+	plateau[milieu.colonne][milieu.ligne].typeP = vide;
+	plateau[milieu.colonne][milieu.ligne].coulP = aucune;
+	plateau[depart.colonne][depart.ligne].typeP = vide;
+	plateau[depart.colonne][depart.ligne].coulP = aucune;
+	transformer_pion_en_dame(arrivee);
 	*nbrePionJoueur = *nbrePionJoueur - 1;
 }
 
-void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, COULP couleurJoueur)
+void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee)
 {
-	changer_etat_case_tableau_logique(arrivee, plateau[depart.colonne][depart.ligne].typeP, couleurJoueur);
-	changer_etat_case_tableau_logique(depart, vide, aucune);
-	transformer_pion_en_dame(arrivee, couleurJoueur);
+	plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
+	plateau[arrivee.colonne][arrivee.ligne].coulP = plateau[depart.colonne][depart.ligne].coulP;
+	plateau[depart.colonne][depart.ligne].typeP = vide;
+	plateau[depart.colonne][depart.ligne].coulP = aucune;
+	transformer_pion_en_dame(arrivee);
 }
 
 void initialiser_plateau()
@@ -72,7 +71,22 @@ void initialiser_plateau()
 
 /* Vérification des possibilités d'attaques et de déplacements */
 
-int donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur)
+/*
+ * Les deux fonctions suivantes déterminent la position des cases libres autour du pion.
+ * La première teste le déplacement et la seconde l'attaque.
+ * 
+ * En fonction de l'état (case libre ou occupée) de chaque case en diagonale, un nombre leur est attribué.
+ * Si une case est occupée, ce nombre vaut 0, si elle est libre, le nombre vaut :
+ * 1 pour la case en haut à gauche
+ * 2 pour la case en haut à droite                        1   2
+ * 4 pour la case en bas à gauche                           X
+ * 8 pour la case en bas à droite                         4   8
+ * 
+ * La valeur de renvoi de chaque fonction est donc un entier appartenant à [0, 15].
+ * Il correspond à la somme des quatres nombres donnant les états de chaque case (libre ou occupée)
+ */
+
+int donner_position_cases_libres_attaque(NUMCASE depart)
 {
 	int cases_libres = 0;
 	NUMCASE arrivee;
@@ -84,10 +98,10 @@ int donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur)
 		{
 			arrivee.ligne = depart.ligne + 2;
 			arrivee.colonne = depart.colonne - 2;
-			if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+			if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee))
 				cases_libres += 1;
 			arrivee.colonne = depart.colonne + 2;
-			if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+			if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee))
 				cases_libres += 2;
 		}
 	}
@@ -99,10 +113,10 @@ int donner_position_cases_libres_attaque(NUMCASE depart, COULP couleurJoueur)
 		{
 			arrivee.ligne = depart.ligne - 2;
 			arrivee.colonne = depart.colonne - 2;
-			if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+			if(depart.colonne > 1 && est_coup_valide_attaque(depart, arrivee))
 				cases_libres += 4;
 			arrivee.colonne = depart.colonne + 2;
-			if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee, couleurJoueur))
+			if(depart.colonne < 8 && est_coup_valide_attaque(depart, arrivee))
 				cases_libres += 8;
 		}
 	}
@@ -147,22 +161,26 @@ int donner_position_cases_libres_deplacement(NUMCASE depart)
 	return cases_libres;
 }
 
-BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination, COULP couleurJoueur)
+BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination)
 {
 	PIECE piece = plateau[origine.colonne][origine.ligne];
 	int deltaCol = destination.colonne - origine.colonne;
 	int deltaLig = destination.ligne - origine.ligne;
-	COULP couleurEnnemi = (couleurJoueur == coul1) ? coul2 : coul1;
+	COULP couleurEnnemi = (plateau[origine.colonne][origine.ligne].coulP == coul1) ? coul2 : coul1;
 	
 	if(plateau[destination.colonne][destination.ligne].coulP == aucune)
 	{
-		if( ( deltaLig == 2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.colonne - 1][destination.ligne - 1].coulP == couleurEnnemi )
+		if( ( ( deltaLig == 2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul1) )
+			&& ( plateau[destination.colonne - 1][destination.ligne - 1].coulP == couleurEnnemi ) )
 		||
-		( deltaLig == 2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul1) && plateau[destination.colonne + 1][destination.ligne - 1].coulP == couleurEnnemi )
+		( ( deltaLig == 2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul1) )
+			&& ( plateau[destination.colonne + 1][destination.ligne - 1].coulP == couleurEnnemi ) )
 		||
-		( deltaLig == -2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.colonne - 1][destination.ligne + 1].coulP == couleurEnnemi )
+		( ( deltaLig == -2 && deltaCol == 2 && (piece.typeP == dame || piece.coulP == coul2) )
+			&& ( plateau[destination.colonne - 1][destination.ligne + 1].coulP == couleurEnnemi ) )
 		||
-		( deltaLig == -2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul2) && plateau[destination.colonne + 1][destination.ligne + 1].coulP == couleurEnnemi ))
+		( ( deltaLig == -2 && deltaCol == -2 && (piece.typeP == dame || piece.coulP == coul2) )
+			&& ( plateau[destination.colonne + 1][destination.ligne + 1].coulP == couleurEnnemi )))
 			return TRUE;
 		else
 			return FALSE;
@@ -196,58 +214,53 @@ BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination)
 
 /* Vérification de possibilité de jeu et fin de partie */
 
-BOOL est_bloque(NUMCASE depart, COULP couleurJoueur)
+BOOL est_bloque(NUMCASE depart)
 {
-	if( !donner_position_cases_libres_deplacement(depart) && !donner_position_cases_libres_attaque(depart, couleurJoueur))
-			return TRUE;
-	return FALSE;
+	return ( !donner_position_cases_libres_deplacement(depart) && !donner_position_cases_libres_attaque(depart) );
 }
 
 BOOL est_joueur_bloque(COULP couleurJoueur, int nbrePionJoueur)
 {
-	int nbre_cases_bloquees, i, j;
+	int i, j;
 	NUMCASE case_testee;
-
-	nbre_cases_bloquees = 0;
+	
 	for(i = 0; i < 10; i++)
 	{
 		for(j = 0; j < 10; j++)
 		{
 			case_testee.ligne = j;
 			case_testee.colonne = i;
-			if(plateau[case_testee.colonne][case_testee.ligne].coulP == couleurJoueur && est_bloque(case_testee, couleurJoueur))
+			if(plateau[case_testee.colonne][case_testee.ligne].coulP == couleurJoueur && !est_bloque(case_testee))
 			{
-				nbre_cases_bloquees++;
-				if(nbre_cases_bloquees == nbrePionJoueur)
-					return TRUE;
+				return FALSE;
 			}
 		}
 	}
-	return FALSE;
+	return TRUE;
 }
 
-int tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur)
+TYPEDEFAITE tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur)
 {
 	if(nbrePionJoueur == 0)
 	{
-		return 1;
+		return aucunPion;
 	}
 	if(est_joueur_bloque(couleurJoueur, nbrePionJoueur))
 	{
-		return 2;
+		return pionsBloques;
 	}
-	return 0;
+	return peutJouer;
 }
 
-void transformer_pion_en_dame(NUMCASE pion, COULP couleurJoueur)
+void transformer_pion_en_dame(NUMCASE nc)
 {
-	if(plateau[pion.colonne][pion.ligne].typeP != dame)
+	if(plateau[nc.colonne][nc.ligne].typeP != dame)
 	{
-		if( ( pion.ligne == 9 )
+		if( ( nc.ligne == 9 && plateau[nc.colonne][nc.ligne].coulP == coul1)
 		||
-		( pion.ligne == 0 ))
+		( nc.ligne == 0 && plateau[nc.colonne][nc.ligne].coulP == coul2))
 		{
-			plateau[pion.colonne][pion.ligne].typeP = dame;
+			plateau[nc.colonne][nc.ligne].typeP = dame;
 		}
 	}
 }
@@ -1012,8 +1025,17 @@ void enlever_pion_qui_subit_attaque_ig2(POINT centrePionChoisi, POINT centreCase
 
 /*		-- Choix attaque multiple --		*/
 
-void afficher_choix_multi_attaque(POINT ptMultiAtk1, POINT ptMultiAtk2, POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2)
+void afficher_choix_multi_attaque()
 {
+	POINT ptMultiAtk1, ptMultiAtk2, ptOui1, ptOui2, ptNon1, ptNon2;
+	
+	ptMultiAtk1.x = HAUT_FENETRE + 10; ptMultiAtk1.y = HAUT_FENETRE / 4 + 30;
+	ptMultiAtk2.x = HAUT_FENETRE + 10; ptMultiAtk2.y = HAUT_FENETRE / 4;
+	ptOui1.x = HAUT_FENETRE + 20; ptOui1.y = HAUT_FENETRE / 4 - 30;
+	ptOui2.x = HAUT_FENETRE + 60; ptOui2.y = HAUT_FENETRE / 4 - 60;
+	ptNon1.x = HAUT_FENETRE + 10 + 100; ptNon1.y = HAUT_FENETRE / 4 - 30;
+	ptNon2.x = HAUT_FENETRE + 10 + 140; ptNon2.y = HAUT_FENETRE / 4 - 60;
+	
 	aff_pol("Attaque possible", 20, ptMultiAtk1, blanc);
 	aff_pol("Continuer ?", 20, ptMultiAtk2, blanc);
 	aff_pol("Oui", 20, ptOui1, vert);
@@ -1024,18 +1046,25 @@ void afficher_choix_multi_attaque(POINT ptMultiAtk1, POINT ptMultiAtk2, POINT pt
 	return;
 }
 
-void effacer_choix_multi_attaque(POINT P1)
+void effacer_choix_multi_attaque()
 {
-	POINT P2;
+	POINT P1, P2;
 	
+	P1.x = HAUT_FENETRE + 10; P1.y = HAUT_FENETRE / 4 + 30;
 	P2.x = LARG_FENETRE; P2.y = 0;
+	
 	draw_fill_rectangle(P1, P2, noir);
 	affiche_all();
 }
 
-BOOL recuperer_choix_multi_attaque(POINT ptOui1, POINT ptOui2, POINT ptNon1, POINT ptNon2)
+BOOL recuperer_choix_multi_attaque()
 {
-	POINT clicMultiAtk;
+	POINT clicMultiAtk, ptOui1, ptOui2, ptNon1, ptNon2;
+	
+	ptOui1.x = HAUT_FENETRE + 20; ptOui1.y = HAUT_FENETRE / 4 - 30;
+	ptOui2.x = HAUT_FENETRE + 60; ptOui2.y = HAUT_FENETRE / 4 - 60;
+	ptNon1.x = HAUT_FENETRE + 10 + 100; ptNon1.y = HAUT_FENETRE / 4 - 30;
+	ptNon2.x = HAUT_FENETRE + 10 + 140; ptNon2.y = HAUT_FENETRE / 4 - 60;
 	
 	do
 	{
@@ -1050,18 +1079,10 @@ BOOL recuperer_choix_multi_attaque(POINT ptOui1, POINT ptOui2, POINT ptNon1, POI
 BOOL est_acceptee_multi_attaque()
 {
 	BOOL choix;
-	POINT ptMultiAtk1, ptMultiAtk2, ptOui1, ptOui2, ptNon1, ptNon2;
 	
-	ptMultiAtk1.x = HAUT_FENETRE + 10; ptMultiAtk1.y = HAUT_FENETRE / 4 + 30;
-	ptMultiAtk2.x = HAUT_FENETRE + 10; ptMultiAtk2.y = HAUT_FENETRE / 4;
-	ptOui1.x = HAUT_FENETRE + 20; ptOui1.y = HAUT_FENETRE / 4 - 30;
-	ptOui2.x = HAUT_FENETRE + 60; ptOui2.y = HAUT_FENETRE / 4 - 60;
-	ptNon1.x = HAUT_FENETRE + 10 + 100; ptNon1.y = HAUT_FENETRE / 4 - 30;
-	ptNon2.x = HAUT_FENETRE + 10 + 140; ptNon2.y = HAUT_FENETRE / 4 - 60;
-	
-	afficher_choix_multi_attaque(ptMultiAtk1, ptMultiAtk2, ptOui1, ptOui2, ptNon1, ptNon2);
-	choix = recuperer_choix_multi_attaque(ptOui1, ptOui2, ptNon1, ptNon2);
-	effacer_choix_multi_attaque(ptMultiAtk1);
+	afficher_choix_multi_attaque();
+	choix = recuperer_choix_multi_attaque();
+	effacer_choix_multi_attaque();
 	return choix;
 }
 
@@ -1220,23 +1241,23 @@ void afficher_gagnant(int nbrePionJ1,int nbrePionJ2)
 	
 	ptTexteGagnant.x=50; ptTexteGagnant.y=HAUT_FENETRE-50;
 	
-	if( tester_fin_jeu(coul1,nbrePionJ1) == 1)
+	if( tester_fin_jeu(coul1,nbrePionJ1) == aucunPion)
 	{
 		aff_pol("Le joueur 1 n'a plus de pion. Le joueur 2 gagne !",20,ptTexteGagnant,blanc);
 	}
 	
-	if( tester_fin_jeu(coul2,nbrePionJ2) == 1)
+	if( tester_fin_jeu(coul2,nbrePionJ2) == aucunPion)
 	{
 		aff_pol("Le joueur 2 n'a plus de pion. Le joueur 1 gagne !",20,ptTexteGagnant,blanc);
 	}
 	
 	
-	if( tester_fin_jeu(coul1,nbrePionJ1) == 2)
+	if( tester_fin_jeu(coul1,nbrePionJ1) == pionsBloques)
 	{
 		aff_pol("Le joueur 1 est bloque. Le joueur 2 gagne !",20,ptTexteGagnant,blanc);
 	}
 	
-	if( tester_fin_jeu(coul2,nbrePionJ2) == 2)
+	if( tester_fin_jeu(coul2,nbrePionJ2) == pionsBloques)
 	{
 		aff_pol("Le joueur 2 est bloque. Le joueur 1 gagne !",20,ptTexteGagnant,blanc);
 	}
@@ -1290,12 +1311,12 @@ void bouger_pion_choisi_ig1(POINT centreCasePionChoisi, POINT centreCaseDestinat
 	effacer_piece_case_orig_ig1(centreCasePionChoisi);
 	if( est_coup_valide_deplacement(numCaseOrig, numCaseDestination) )
 	{
-		effectuer_deplacement_dans_tableau_logique(numCaseOrig,numCaseDestination,couleurJoueur);
+		effectuer_deplacement_dans_tableau_logique(numCaseOrig,numCaseDestination);
 	}
-	else if( est_coup_valide_attaque(numCaseOrig,numCaseDestination,couleurJoueur) )
+	else if( est_coup_valide_attaque(numCaseOrig,numCaseDestination) )
 	{
 		enlever_pion_qui_subit_attaque_ig1(centreCasePionChoisi, centreCaseDestination);
-		effectuer_attaque_dans_tableau_logique(numCaseOrig, numCaseDestination, couleurJoueur, nbrePionJoueur);
+		effectuer_attaque_dans_tableau_logique(numCaseOrig, numCaseDestination, nbrePionJoueur);
 	}
 	afficher_piece_ig1(centreCaseDestination,numCaseDestination.ligne,numCaseDestination.colonne);
 	affiche_all();
@@ -1307,12 +1328,12 @@ void bouger_pion_choisi_ig2(POINT centreCasePionChoisi, POINT centreCaseDestinat
 	effacer_piece_case_orig_ig2(centreCasePionChoisi);
 	if( est_coup_valide_deplacement(numCaseOrig, numCaseDestination) )
 	{
-		effectuer_deplacement_dans_tableau_logique(numCaseOrig,numCaseDestination,couleurJoueur);
+		effectuer_deplacement_dans_tableau_logique(numCaseOrig,numCaseDestination);
 	}
-	else if( est_coup_valide_attaque(numCaseOrig,numCaseDestination,couleurJoueur) )
+	else if( est_coup_valide_attaque(numCaseOrig,numCaseDestination) )
 	{
 		enlever_pion_qui_subit_attaque_ig2(centreCasePionChoisi, centreCaseDestination);
-		effectuer_attaque_dans_tableau_logique(numCaseOrig, numCaseDestination, couleurJoueur, nbrePionJoueur);
+		effectuer_attaque_dans_tableau_logique(numCaseOrig, numCaseDestination, nbrePionJoueur);
 	}
 	afficher_piece_ig2(centreCaseDestination,numCaseDestination.ligne,numCaseDestination.colonne);
 	affiche_all();
@@ -1345,7 +1366,7 @@ void choisir_pion_valide_ig1(COULP couleurPionValide,POINT *centreCasePionChoisi
 			couleurPionChoisi=plateau[numCasePionChoisi->colonne][numCasePionChoisi->ligne].coulP;
 		}while(couleurPionChoisi!=couleurPionValide);
 		
-	}while( est_bloque(*numCasePionChoisi,couleurPionChoisi) );
+	}while( est_bloque(*numCasePionChoisi) );
 }
 
 void choisir_pion_valide_ig2(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi)
@@ -1363,7 +1384,7 @@ void choisir_pion_valide_ig2(COULP couleurPionValide,POINT *centreCasePionChoisi
 			couleurPionChoisi=plateau[numCasePionChoisi->colonne][numCasePionChoisi->ligne].coulP;
 		}while(couleurPionChoisi!=couleurPionValide);
 		
-	}while( est_bloque(*numCasePionChoisi,couleurPionChoisi) );
+	}while( est_bloque(*numCasePionChoisi) );
 }
 
 NUMCASE convertir_centreCase_en_numCase(POINT centreCase)
@@ -1424,7 +1445,7 @@ void trouver_cases_libres_ig1(POINT centrePionChoisi, NUMCASE numCasePionChoisi,
 		*positionCasesLibres = donner_position_cases_libres_deplacement(numCasePionChoisi);
 	else
 		*positionCasesLibres = 0;
-	*positionCasesLibresAttaque = donner_position_cases_libres_attaque(numCasePionChoisi,couleurJoueur);
+	*positionCasesLibresAttaque = donner_position_cases_libres_attaque(numCasePionChoisi);
 	
 	afficher_cases_libres_ig1(centrePionChoisi, *positionCasesLibres, *positionCasesLibresAttaque);
 }
@@ -1435,7 +1456,7 @@ void trouver_cases_libres_ig2(POINT centrePionChoisi, NUMCASE numCasePionChoisi,
 		*positionCasesLibres = donner_position_cases_libres_deplacement(numCasePionChoisi);
 	else
 		*positionCasesLibres = 0;
-	*positionCasesLibresAttaque = donner_position_cases_libres_attaque(numCasePionChoisi,couleurJoueur);
+	*positionCasesLibresAttaque = donner_position_cases_libres_attaque(numCasePionChoisi);
 	
 	afficher_cases_libres_ig2(centrePionChoisi,*positionCasesLibres,*positionCasesLibresAttaque);
 }
@@ -1459,10 +1480,10 @@ void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
 				bouger_pion_choisi_ig1(centreCasePionChoisi, centreCaseDestination, numCasePionChoisi, numCaseDestination, couleurJoueur, positionCasesLibres, positionCasesLibresAttaque, nbrePionJoueur);
 				return;
 			}
-			if(est_coup_valide_attaque(numCasePionChoisi, numCaseDestination, couleurJoueur))
+			if(est_coup_valide_attaque(numCasePionChoisi, numCaseDestination))
 			{
 				bouger_pion_choisi_ig1(centreCasePionChoisi, centreCaseDestination, numCasePionChoisi, numCaseDestination, couleurJoueur, positionCasesLibres, positionCasesLibresAttaque, nbrePionJoueur);
-				if(donner_position_cases_libres_attaque(numCaseDestination, couleurJoueur))
+				if(donner_position_cases_libres_attaque(numCaseDestination))
 				{
 					if(est_acceptee_multi_attaque())
 					{
@@ -1503,10 +1524,10 @@ void tour_piece_ig2(COULP couleurJoueur, int *nbrePionJoueur)
 				bouger_pion_choisi_ig2(centreCasePionChoisi, centreCaseDestination, numCasePionChoisi, numCaseDestination, couleurJoueur, positionCasesLibres, positionCasesLibresAttaque, nbrePionJoueur);
 				return;
 			}
-			if(est_coup_valide_attaque(numCasePionChoisi, numCaseDestination, couleurJoueur))
+			if(est_coup_valide_attaque(numCasePionChoisi, numCaseDestination))
 			{
 				bouger_pion_choisi_ig2(centreCasePionChoisi, centreCaseDestination, numCasePionChoisi, numCaseDestination, couleurJoueur, positionCasesLibres, positionCasesLibresAttaque, nbrePionJoueur);
-				if(donner_position_cases_libres_attaque(numCaseDestination, couleurJoueur))
+				if(donner_position_cases_libres_attaque(numCaseDestination))
 				{
 					if(est_acceptee_multi_attaque())
 					{
