@@ -51,20 +51,17 @@ typedef struct NUMCASE{
  */
 
 /* Manipulation du tableau logique */
-
 void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, int *nbrePionJoueur);
 void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee);
 void initialiser_tableau();
 
 /* Vérification des possibilités d'attaques et de déplacements */
-
 int donner_position_cases_libres_attaque(NUMCASE depart);
 int donner_position_cases_libres_deplacement(NUMCASE depart);
 BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination);
 BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination);
 
 /* Vérification de possibilité de jeu et fin de partie */
-
 BOOL est_bloque(NUMCASE depart);
 BOOL est_joueur_bloque(COULP couleurJoueur, int nbrePionJoueur);
 TYPEDEFAITE tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur);
@@ -83,7 +80,6 @@ void transformer_pion_en_dame(NUMCASE pion);
 COULEUR convertir_joueur_couleur(COULP couleurJoueur);
 
 /* Afficher pieces / plateau */
-
 void afficher_pion_ig1(POINT losangeCentre,COULEUR couleur);
 void afficher_dame_ig1(POINT losangeCentre);
 void afficher_case_ig1(POINT centre,COULEUR couleur);
@@ -115,7 +111,6 @@ void effacer_texte_choix_destination();
 void enlever_pion_qui_subit_attaque(POINT caseOrig, POINT caseDest, CHOIXIG igChoisi);
 
 /* Choix attaque multiple */
-
 void afficher_choix_multi_attaque();
 void effacer_choix_multi_attaque();
 BOOL est_acceptee_multi_attaque();
