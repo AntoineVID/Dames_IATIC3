@@ -1,6 +1,4 @@
 # Dames_IATIC3
-Bonjour test couleur
-
 
 Pour choisir interface : gauche = ig1 / droite = ig2 (sera mieux fait plus tard)
 
