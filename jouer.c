@@ -38,7 +38,7 @@ void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee)
 	transformer_pion_en_dame(arrivee);
 }
 
-void initialiser_plateau()
+void initialiser_tableau()
 {
 	int i, j;
 	
@@ -316,7 +316,7 @@ void afficher_pion_ig1(POINT losangeCentre,COULEUR couleur)
 	draw_fill_triangle(sommet,baseDroit,baseGauche,couleur);
 }
 
-void afficher_dame_ig1(POINT losangeCentre,COULEUR couleur)
+void afficher_dame_ig1(POINT losangeCentre)
 {
 	POINT sommet,baseDroit,baseGauche;
 	
@@ -358,20 +358,29 @@ void afficher_dame_ig2(POINT centre)
 	draw_fill_circle(centre,LONGUEUR_PIECE/3,COULEUR_DAME);
 }
 
-void afficher_case_ig2(POINT bgCase,POINT hdCase,COULEUR couleur)
+void afficher_case_ig2(POINT centre,COULEUR couleur)
 {
+	POINT bgCase, hdCase;
+	
+	bgCase.x = centre.x - LARG_CASE / 2;
+	bgCase.y = centre.y - LARG_CASE / 2;
+	hdCase.x = centre.x + LARG_CASE / 2;
+	hdCase.y = centre.y + LARG_CASE / 2;
+	
 	draw_fill_rectangle(bgCase,hdCase,couleur);
 }
 
-void afficher_piece(POINT centre,int ligne,int colonne, CHOIXIG igChoisi)
+void afficher_piece(POINT centre, CHOIXIG igChoisi)
 {
 	COULEUR couleur;
-	couleur = convertir_joueur_couleur(plateau[colonne][ligne].coulP);
+	NUMCASE nc;
+	nc = convertir_centreCase_en_numCase(centre, igChoisi);
+	couleur = convertir_joueur_couleur(plateau[nc.colonne][nc.ligne].coulP);
 	
 	if(igChoisi == ig1)
 	{
 		afficher_pion_ig1(centre,couleur);
-		if(plateau[colonne][ligne].typeP == dame)
+		if(plateau[nc.colonne][nc.ligne].typeP == dame)
 		{
 			afficher_dame_ig1(centre);
 		}
@@ -379,44 +388,42 @@ void afficher_piece(POINT centre,int ligne,int colonne, CHOIXIG igChoisi)
 	else
 	{
 		afficher_pion_ig2(centre,couleur);
-		if(plateau[colonne][ligne].typeP == dame)
+		if(plateau[nc.colonne][nc.ligne].typeP == dame)
 		{
 			afficher_dame_ig2(centre);
 		}
 	}
 }
 
+void afficher_case(POINT centre, COULEUR couleur, CHOIXIG igChoisi)
+{
+	if(igChoisi == ig1)
+		afficher_case_ig1(centre, couleur);
+	else
+		afficher_case_ig2(centre, couleur);
+}
+
 void afficher_plateau(CHOIXIG igChoisi)
 {
-	int i=0,j=0;
-	POINT centre;
-	
-	centre.x=LARG_CASE/2; centre.y=LARG_CASE/2;
+	int i,j;
+	NUMCASE nc;
 	
 	for(i=0;i<10;i++)
 	{
 		for(j=0;j<10;j++)
 		{
+			nc.ligne = i; nc.colonne = j;
 			if ( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) )
 			{
-				afficher_case_ig1(centre,COULEUR_CASE_JOUEURS);
-				
-				if(plateau[j][i].coulP != aucune)
-				{
-					afficher_piece_ig(centre,i,j,igChoisi);
-				}
+				afficher_case(convertir_numCase_en_centreCase(nc, igChoisi), COULEUR_CASE_JOUEURS, igChoisi);
+				if(plateau[nc.colonne][nc.ligne].coulP != aucune)
+					afficher_piece(convertir_numCase_en_centreCase(nc, igChoisi), igChoisi);
 			}
-			
 			else
 			{
-				afficher_case_ig1(centre,COULEUR_CASE_VIDE);
+				afficher_case(convertir_numCase_en_centreCase(nc, igChoisi), COULEUR_CASE_VIDE, igChoisi);
 			}
-		
-			centre.x+=LARG_CASE;
 		}
-		
-		centre.x=LARG_CASE/2;
-		centre.y+=LARG_CASE;
 	}
 }
 
@@ -424,13 +431,12 @@ void afficher_ecran_jeu(CHOIXIG igChoisi)
 {
 	fill_screen(noir);
 	afficher_plateau(igChoisi);
-	afficher_interface(igChoisi);
 	affiche_all();
 }
 
 /*		-- Afficher Interface --		*/
 
-void afficher_interface(CHOIXIG igChoisi)
+void afficher_interface(CHOIXIG igChoisi, COULEUR couleur)
 {
 	POINT texteTour,pionInterface;
 	
@@ -444,11 +450,11 @@ void afficher_interface(CHOIXIG igChoisi)
 	
 	if(igChoisi==ig1)
 	{
-		afficher_pion_ig1(pionInterface,COULEUR_JOUEUR1);
+		afficher_pion_ig1(pionInterface,couleur);
 	}
 	else
 	{
-		afficher_pion_ig2(tourJoueur,COULEUR_JOUEUR1);
+		afficher_pion_ig2(pionInterface,couleur);
 	}
 	affiche_all();
 }
@@ -628,6 +634,15 @@ void modifier_couleur_cases_libres_ig2(POINT origine, int casesLibresDep, int ca
 	}
 }
 
+void modifier_couleur_cases_libres(POINT origine, int casesLibresDep, int casesLibresAtk, COULEUR couleur, CHOIXIG igChoisi)
+{
+	if(igChoisi == ig1)
+		modifier_couleur_cases_libres_ig1(origine, casesLibresDep, casesLibresAtk, couleur);
+	else
+		modifier_couleur_cases_libres_ig2(origine, casesLibresDep, casesLibresAtk, couleur);
+	affiche_all();
+}
+
 /*		-- Choisir destination --		*/
 
 void afficher_texte_choix_destination()
@@ -653,16 +668,16 @@ void effacer_texte_choix_destination()
 
 /*		-- Retirer pion pris --		*/
 
-void enlever_pion_qui_subit_attaque(POINT pionChoisi, POINT caseDestination, CHOIXIG igChoisi)
+void enlever_pion_qui_subit_attaque(POINT caseOrig, POINT caseDest, CHOIXIG igChoisi)
 {
-	POINT caseLibre;
+	POINT caseMilieu;
 	
-	caseLibre.x = (pionChoisi.x + caseDestination.x) / 2;
-	caseLibre.y = (pionChoisi.y + caseDestination.y) / 2;
+	caseMilieu.x = (caseOrig.x + caseDest.x) / 2;
+	caseMilieu.y = (caseOrig.y + caseDest.y) / 2;
 	if(igChoisi == ig1)
-		afficher_case_ig1(caseLibre, COULEUR_CASE_JOUEURS);
+		afficher_case_ig1(caseMilieu, COULEUR_CASE_JOUEURS);
 	else
-		afficher_case_ig2(caseLibre, COULEUR_CASE_JOUEURS);
+		afficher_case_ig2(caseMilieu, COULEUR_CASE_JOUEURS);
 	
 	affiche_all();
 }
@@ -704,7 +719,7 @@ void effacer_choix_multi_attaque()
 BOOL est_acceptee_multi_attaque()
 {
 	BOOL choix;
-	POINT ptOui1, ptOui2, ptNon1, ptNon2;
+	POINT PouiHD, PouiBG, PnonHD, PnonBG;
 	
 	PouiHD.x = HAUT_FENETRE + 20; PouiHD.y = HAUT_FENETRE / 4 - 30;
 	PouiBG.x = HAUT_FENETRE + 60; PouiBG.y = HAUT_FENETRE / 4 - 60;
@@ -772,10 +787,8 @@ void afficher_exemple_ecran_titre_ig1()
 void afficher_exemple_ecran_titre_ig2()
 {
 	int i,j;
-	POINT bgCase,hdCase,centreCase, titre;
+	POINT centreCase, titre;
 	
-	bgCase.x=440; bgCase.y=120;
-	hdCase.x=bgCase.x+LARG_CASE; hdCase.y=bgCase.y+LARG_CASE;
 	centreCase.x=440+LARG_CASE/2; centreCase.y=120+LARG_CASE/2;
 	titre.x=LARG_FENETRE/1.5; titre.y=HAUT_FENETRE-100;
 	
@@ -787,7 +800,7 @@ void afficher_exemple_ecran_titre_ig2()
 		{
 			if( ((i%2) && (j%2)) || (!(i%2) && !(j%2)) )
 			{
-				afficher_case_ig2(bgCase,hdCase,COULEUR_CASE_VIDE);
+				afficher_case_ig2(centreCase,COULEUR_CASE_VIDE);
 				
 				if(j<2)
 				{
@@ -802,18 +815,14 @@ void afficher_exemple_ecran_titre_ig2()
 			
 			else
 			{
-				afficher_case_ig2(bgCase,hdCase,COULEUR_CASE_JOUEURS);
+				afficher_case_ig2(centreCase,COULEUR_CASE_JOUEURS);
 			}
 			
 			centreCase.x+=LARG_CASE;
-			bgCase.x+=LARG_CASE;
-			hdCase.x+=LARG_CASE;
 		}
 		
 		centreCase.x=440+LARG_CASE/2;
 		centreCase.y+=LARG_CASE;
-		bgCase.x=440; bgCase.y+=LARG_CASE;
-		hdCase.x=bgCase.x+LARG_CASE; hdCase.y+=LARG_CASE;
 	}
 	
 	affiche_all();
@@ -830,53 +839,54 @@ void afficher_ecran_titre()
 
 /*		-- Fin Partie --		*/
 
-void afficher_gagnant(int nbrePionJ1,int nbrePionJ2, TYPEDEFAITE finJeu)
+void afficher_gagnant(COULP couleurJoueur, TYPEDEFAITE finJeu)
 {
-	POINT ptTexteGagnant;
+	POINT ptTextePlusPion, ptTexteBloque;
 	
-	ptTexteGagnant.x=50; ptTexteGagnant.y=HAUT_FENETRE-50;
+	ptTextePlusPion.x=30; ptTextePlusPion.y=HAUT_FENETRE-50;
+	ptTexteBloque.x=75; ptTexteBloque.y=HAUT_FENETRE-50;
 	
-	if( finJeu == aucunPion)
+	if(couleurJoueur == coul1 && finJeu == aucunPion)
 	{
-		aff_pol("Le joueur 1 n'a plus de pion. Le joueur 2 gagne !",20,ptTexteGagnant,blanc);
+		aff_pol("Le joueur 1 n'a plus de pion. Le joueur 2 gagne !",30,ptTextePlusPion,crimson);
 	}
 	
-	if( finJeu == aucunPion)
+	if(couleurJoueur == coul2 && finJeu == aucunPion)
 	{
-		aff_pol("Le joueur 2 n'a plus de pion. Le joueur 1 gagne !",20,ptTexteGagnant,blanc);
+		aff_pol("Le joueur 2 n'a plus de pion. Le joueur 1 gagne !",30,ptTextePlusPion,crimson);
 	}
 	
 	
-	if( finJeu == pionsBloques)
+	if(couleurJoueur == coul1 && finJeu == pionsBloques)
 	{
-		aff_pol("Le joueur 1 est bloque. Le joueur 2 gagne !",20,ptTexteGagnant,blanc);
+		aff_pol("Le joueur 1 est bloque. Le joueur 2 gagne !",30,ptTexteBloque,crimson);
 	}
 	
-	if( finJeu == pionsBloques)
+	if(couleurJoueur == coul2 && finJeu == pionsBloques)
 	{
-		aff_pol("Le joueur 2 est bloque. Le joueur 1 gagne !",20,ptTexteGagnant,blanc);
+		aff_pol("Le joueur 2 est bloque. Le joueur 1 gagne !",30,ptTexteBloque,crimson);
 	}
 }
 
-BOOL redemander_partie(int nbrePionJ1,int nbrePionJ2)
+BOOL redemander_partie(COULP couleurJoueur, TYPEDEFAITE finJeu)
 {
-	POINT PouiHG, PouiBD, PnonHG, PnonBD, ptRejouer;
-
+	POINT ptRejouer, PouiHG, PouiBD, PnonHG, PnonBD;
+	
+	ptRejouer.x=LARG_FENETRE/4; ptRejouer.y=HAUT_FENETRE/2;
 	PouiHG.x=(LARG_FENETRE/3)+150; PouiHG.y=HAUT_FENETRE/2;
-	PouiBD.x = PouiHG.x + 40; PouiBD.y = PouiHG.y - 20;
-	PnonHG.x=(LARG_FENETRE/3)+250; PnonHG.y=ptOui.y;
-	PnonBD.x = PnonHG.x + 40; PnonBD.y = PnonHG.y - 20;
-	ptRejouer.x=LARG_FENETRE/3; ptRejouer.y=HAUT_FENETRE/2;
+	PouiBD.x = PouiHG.x + 60; PouiBD.y = PouiHG.y - 45;
+	PnonHG.x=(LARG_FENETRE/3)+250; PnonHG.y=PouiHG.y;
+	PnonBD.x = PnonHG.x + 60; PnonBD.y = PnonHG.y - 45;
 	
 	
 	fill_screen(noir);
-	afficher_gagnant(nbrePionJ1,nbrePionJ2);
-	aff_pol("Rejouer ?",20,ptRejouer,blanc);
-	aff_pol("Oui",20,ptOui,blanc);
-	aff_pol("Non",20,ptNon,blanc);
+	afficher_gagnant(couleurJoueur, finJeu);
+	aff_pol("Rejouer ?",40,ptRejouer,blanc);
+	aff_pol("Oui",40,PouiHG,vertclair);
+	aff_pol("Non",40,PnonHG,darkred);
 	affiche_all();
 	
-	return recuperer_clic_oui_non(PouiHG, PouiBD, PnonHG, PouiBD);
+	return recuperer_clic_oui_non(PouiHG, PouiBD, PnonHG, PnonBD);
 }
 
 /*
@@ -889,93 +899,58 @@ BOOL redemander_partie(int nbrePionJ1,int nbrePionJ2)
  * \/ CONTRÔLEUR \/
  */
 
-void bouger_pion_choisi_ig1(POINT centreCasePionChoisi, POINT centreCaseDestination, NUMCASE numCaseOrig, NUMCASE numCaseDestination, COULP couleurJoueur,int casesLibresDep, int casesLibresAtk, int *nbrePionJoueur)
+NUMCASE convertir_clic_en_numCase(POINT clic, CHOIXIG igChoisi)
 {
-	effacer_cases_libres_choisies_ig1(centreCasePionChoisi, casesLibresDep, casesLibresAtk);
-	effacer_piece_case_orig_ig1(centreCasePionChoisi);
-	if( est_coup_valide_deplacement(numCaseOrig, numCaseDestination) )
-	{
-		effectuer_deplacement_dans_tableau_logique(numCaseOrig,numCaseDestination);
-	}
-	else if( est_coup_valide_attaque(numCaseOrig,numCaseDestination) )
-	{
-		enlever_pion_qui_subit_attaque_ig1(centreCasePionChoisi, centreCaseDestination);
-		effectuer_attaque_dans_tableau_logique(numCaseOrig, numCaseDestination, nbrePionJoueur);
-	}
-	afficher_piece_ig1(centreCaseDestination,numCaseDestination.ligne,numCaseDestination.colonne);
-	affiche_all();
-}
-
-void bouger_pion_choisi_ig2(POINT centreCasePionChoisi, POINT centreCaseDestination, NUMCASE numCaseOrig, NUMCASE numCaseDestination, COULP couleurJoueur,int casesLibresDep, int casesLibresAtk, int *nbrePionJoueur)
-{
-	effacer_cases_libres_choisies_ig2(centreCasePionChoisi, casesLibresDep, casesLibresAtk);
-	effacer_piece_case_orig_ig2(centreCasePionChoisi);
-	if( est_coup_valide_deplacement(numCaseOrig, numCaseDestination) )
-	{
-		effectuer_deplacement_dans_tableau_logique(numCaseOrig,numCaseDestination);
-	}
-	else if( est_coup_valide_attaque(numCaseOrig,numCaseDestination) )
-	{
-		enlever_pion_qui_subit_attaque_ig2(centreCasePionChoisi, centreCaseDestination);
-		effectuer_attaque_dans_tableau_logique(numCaseOrig, numCaseDestination, nbrePionJoueur);
-	}
-	afficher_piece_ig2(centreCaseDestination,numCaseDestination.ligne,numCaseDestination.colonne);
-	affiche_all();
-}
-
-void choisir_pion_valide_ig1(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi)
-{
-	COULP couleurPionChoisi;
-	POINT clicPionChoisi;
+	NUMCASE nc;
 	
-	do{
-		
-		do{
-			clicPionChoisi=recuperer_clic_pos_plateau();
-			*centreCasePionChoisi=convertir_clic_en_centreCase(clicPionChoisi);
-			*numCasePionChoisi=convertir_centreCase_en_numCase(*centreCasePionChoisi);
-			couleurPionChoisi=plateau[numCasePionChoisi->colonne][numCasePionChoisi->ligne].coulP;
-		}while(couleurPionChoisi!=couleurPionValide);
-		
-	}while( est_bloque(*numCasePionChoisi) );
-}
-
-void choisir_pion_valide_ig2(COULP couleurPionValide,POINT *centreCasePionChoisi,NUMCASE *numCasePionChoisi)
-{
-	COULP couleurPionChoisi;
-	POINT clicPionChoisi;
+	if(igChoisi == ig1)
+	{
+		nc.ligne = clic.y / LARG_CASE;
+		nc.colonne = clic.x / LARG_CASE;
+	}
+	else
+	{
+		nc.ligne = clic.x / LARG_CASE;
+		nc.colonne = 9 - ( clic.y / LARG_CASE );
+	}
 	
-	do{
-		
-		do{
-			clicPionChoisi=recuperer_clic_pos_plateau();
-			*centreCasePionChoisi=convertir_clic_en_centreCase(clicPionChoisi);
-			*numCasePionChoisi=convertir_centreCase_en_numCase(*centreCasePionChoisi);
-			*numCasePionChoisi=convertir_numCase_ig2_vers_ig1(*numCasePionChoisi);
-			couleurPionChoisi=plateau[numCasePionChoisi->colonne][numCasePionChoisi->ligne].coulP;
-		}while(couleurPionChoisi!=couleurPionValide);
-		
-	}while( est_bloque(*numCasePionChoisi) );
+	return nc;
 }
 
-POINT convertir_numCase_en_centreCase_ig1(NUMCASE numcase)
+POINT convertir_numCase_en_centreCase(NUMCASE numcase, CHOIXIG igChoisi)
 {
 	POINT centreCase;
 	
-	centreCase.x=(numcase.colonne*LARG_CASE)+(LARG_CASE/2);
-	centreCase.y=(numcase.ligne*LARG_CASE)+(LARG_CASE/2);
+	if(igChoisi == ig1)
+	{
+		centreCase.x=(numcase.colonne*LARG_CASE)+(LARG_CASE/2);
+		centreCase.y=(numcase.ligne*LARG_CASE)+(LARG_CASE/2);
+	}
+	else
+	{
+		centreCase.x=(numcase.ligne * LARG_CASE) + (LARG_CASE/2);
+		centreCase.y=( (9 - numcase.colonne) * LARG_CASE) + (LARG_CASE/2);
+	}
 	
 	return centreCase;
 }
 
-POINT convertir_numCase_en_centreCase_ig2(NUMCASE numcase)
+NUMCASE convertir_centreCase_en_numCase(POINT centre, CHOIXIG igChoisi)
 {
-	POINT centreCase;
+	NUMCASE numcase;
 	
-	centreCase.x=(numCaseIg1.ligne*LARG_CASE)+(LARG_CASE/2);
-	centreCase.y=(9-numCaseIg1.colonne*LARG_CASE)+(LARG_CASE/2);
+	if(igChoisi == ig1)
+	{
+		numcase.ligne=(centre.y)/(LARG_CASE);
+		numcase.colonne=(centre.x)/(LARG_CASE);
+	}
+	else
+	{
+		numcase.ligne=(centre.x)/(LARG_CASE);
+		numcase.colonne= 9 - (centre.y)/(LARG_CASE);
+	}
 	
-	return centreCase;
+		return numcase;
 }
 
 BOOL recuperer_clic_oui_non(POINT ouiHG, POINT ouiBD, POINT nonHG, POINT nonBD)
@@ -999,98 +974,6 @@ void trouver_cases_libres(NUMCASE numCaseOrig, int *casesLibresDep, int *casesLi
 	else
 		*casesLibresDep = 0;
 	*casesLibresAtk = donner_position_cases_libres_attaque(numCaseOrig);
-	if(igChoisi == ig1)
-		afficher_cases_libres_ig1(convertir_numCase_en_centreCase_ig1(numCaseOrig), *casesLibresDep, *casesLibresAtk);
-	else
-		afficher_cases_libres_ig2(convertir_numCase_en_centreCase_ig2(numCaseOrig), *casesLibresDep, *casesLibresAtk);
-}
-
-void tour_piece_ig1(COULP couleurJoueur, int *nbrePionJoueur)
-{
-	int casesLibresDep = 0, casesLibresAtk = 0;
-	POINT centreCasePionChoisi, centreCaseDestination;
-	NUMCASE numCasePionChoisi, numCaseDestination;
-	BOOL est_multiAtk = FALSE;
-	do
-	{
-		effacer_cases_libres_choisies_ig1(centreCasePionChoisi,casesLibresDep,casesLibresAtk);
-		choisir_pion_valide_ig1(couleurJoueur,&centreCasePionChoisi,&numCasePionChoisi);
-		trouver_cases_libres_ig1(centreCasePionChoisi,numCasePionChoisi,couleurJoueur,&casesLibresDep,&casesLibresAtk, est_multiAtk);
-		do
-		{
-			choisir_destination_ig1(centreCasePionChoisi,&centreCaseDestination,&numCaseDestination);
-			if( !est_multiAtk && est_coup_valide_deplacement(numCasePionChoisi, numCaseDestination))
-			{
-				bouger_pion_choisi_ig1(centreCasePionChoisi, centreCaseDestination, numCasePionChoisi, numCaseDestination, couleurJoueur, casesLibresDep, casesLibresAtk, nbrePionJoueur);
-				return;
-			}
-			if(est_coup_valide_attaque(numCasePionChoisi, numCaseDestination))
-			{
-				bouger_pion_choisi_ig1(centreCasePionChoisi, centreCaseDestination, numCasePionChoisi, numCaseDestination, couleurJoueur, casesLibresDep, casesLibresAtk, nbrePionJoueur);
-				if(donner_position_cases_libres_attaque(numCaseDestination))
-				{
-					if(est_acceptee_multi_attaque())
-					{
-						est_multiAtk = TRUE;
-						numCasePionChoisi.ligne = numCaseDestination.ligne;
-						numCasePionChoisi.colonne = numCaseDestination.colonne;
-						centreCasePionChoisi = convertir_numCase_en_centreCase(numCasePionChoisi);
-						trouver_cases_libres_ig1(centreCasePionChoisi,numCasePionChoisi,couleurJoueur,&casesLibresDep,&casesLibresAtk, est_multiAtk);
-					}
-					else
-						return;
-				}
-				else
-					return;
-			}
-			else if( !est_multiAtk)
-				break;
-		}while(1);
-	}while(1);
-}
-
-void tour_piece_ig2(COULP couleurJoueur, int *nbrePionJoueur)
-{
-	int casesLibresDep = 0, casesLibresAtk = 0;
-	POINT centreCasePionChoisi, centreCaseDestination;
-	NUMCASE numCasePionChoisi, numCaseDestination;
-	BOOL est_multiAtk = FALSE;
-	do
-	{
-		effacer_cases_libres_choisies_ig2(centreCasePionChoisi,casesLibresDep,casesLibresAtk);
-		choisir_pion_valide_ig2(couleurJoueur,&centreCasePionChoisi,&numCasePionChoisi);
-		trouver_cases_libres_ig2(centreCasePionChoisi,numCasePionChoisi,couleurJoueur,&casesLibresDep,&casesLibresAtk, est_multiAtk);
-		do
-		{
-			choisir_destination_ig2(centreCasePionChoisi,&centreCaseDestination,&numCaseDestination);
-			if( !est_multiAtk && est_coup_valide_deplacement(numCasePionChoisi, numCaseDestination))
-			{
-				bouger_pion_choisi_ig2(centreCasePionChoisi, centreCaseDestination, numCasePionChoisi, numCaseDestination, couleurJoueur, casesLibresDep, casesLibresAtk, nbrePionJoueur);
-				return;
-			}
-			if(est_coup_valide_attaque(numCasePionChoisi, numCaseDestination))
-			{
-				bouger_pion_choisi_ig2(centreCasePionChoisi, centreCaseDestination, numCasePionChoisi, numCaseDestination, couleurJoueur, casesLibresDep, casesLibresAtk, nbrePionJoueur);
-				if(donner_position_cases_libres_attaque(numCaseDestination))
-				{
-					if(est_acceptee_multi_attaque())
-					{
-						est_multiAtk = TRUE;
-						numCasePionChoisi.ligne = numCaseDestination.ligne;
-						numCasePionChoisi.colonne = numCaseDestination.colonne;
-						centreCasePionChoisi = convertir_numCase_en_centreCase(numCasePionChoisi);
-						trouver_cases_libres_ig2(centreCasePionChoisi,numCasePionChoisi,couleurJoueur,&casesLibresDep,&casesLibresAtk, est_multiAtk);
-					}
-					else
-						return;
-				}
-				else
-					return;
-			}
-			else if( !est_multiAtk)
-				break;
-		}while(1);
-	}while(1);
 }
 
 /*
@@ -1100,50 +983,111 @@ void tour_piece_ig2(COULP couleurJoueur, int *nbrePionJoueur)
 
 int main()
 {
-	int nbrePionJ1, nbrePionJ2;
+	int nbrePionJ1, nbrePionJ2, casesLibresDep, casesLibresAtk;
 	int *nbrePionAutreJoueur;
-	BOOL rejouer = TRUE;
-	COULP couleurJoueur = coul1;
+	BOOL est_multiAtk, estTourTermine;
+	COULP couleurJoueur;
 	CHOIXIG igChoisi;
-	TYPEDEFAITE finJeu = peutJouer;
-	POINT PouiBG, PouiHD, PnonBG, PouiHD;
+	TYPEDEFAITE finJeu;
+	POINT PouiHG, PouiBD, PnonHG, PnonBD, clic;
+	NUMCASE numCaseOrig, numCaseDest;
+	
 	PouiHG.x = 70; PouiHG.y = 420;
 	PouiBD.x = 370; PouiBD.y = 120;
 	PnonHG.x = 440; PnonHG.y = 420;
-	PouiBD.x = 740; PouiBD.y = 120;
+	PnonBD.x = 740; PnonBD.y = 120;
 	
 	init_graphics(LARG_FENETRE,HAUT_FENETRE);
 	affiche_auto_off();
 	
 	do
 	{
-		igChoisi = ig1;
 		nbrePionJ1 = 20, nbrePionJ2 = 20;
-		nbrePionAutreJoueur = &nbrePionJ2;
 		couleurJoueur = coul1;
 		
-		initialiser_plateau();
+		initialiser_tableau();
 		afficher_ecran_titre();
-		igChoisi = (recuperer_clic_oui_non(PouiHG, PouiBD, PnonHG, PouiBD)) ? ig1 : ig2;
-		afficher_ecran_jeu_selon_ig(igChoisi);
+		igChoisi = (recuperer_clic_oui_non(PouiHG, PouiBD, PnonHG, PnonBD)) ? ig1 : ig2;
+		afficher_ecran_jeu(igChoisi);
+		
 		do
 		{
 			nbrePionAutreJoueur = (couleurJoueur == coul1) ? &nbrePionJ2 : &nbrePionJ1;
-			if(igChoisi == ig1)
+			casesLibresDep = 0;
+			casesLibresAtk = 0;
+			
+			afficher_interface(igChoisi, convertir_joueur_couleur(couleurJoueur));
+			
+			do
 			{
-				tour_piece_ig1(couleurJoueur, nbrePionAutreJoueur);
-				changer_tour_interface(*couleurJoueur, igChoisi);
-			}
-			else
-			{
-				tour_piece_ig2(couleurJoueur, nbrePionAutreJoueur);
-				changer_tour_interface(*couleurJoueur, igChoisi);
-			}
+				est_multiAtk = FALSE;
+				estTourTermine = FALSE;
+				
+				do{
+					clic = recuperer_coords_clic_plateau();
+					numCaseOrig = convertir_clic_en_numCase(clic, igChoisi);
+				}while( ( plateau[numCaseOrig.colonne][numCaseOrig.ligne].coulP != couleurJoueur )
+					|| ( est_bloque(numCaseOrig) ));
+				trouver_cases_libres(numCaseOrig, &casesLibresDep, &casesLibresAtk, est_multiAtk, igChoisi);
+				modifier_couleur_cases_libres(convertir_numCase_en_centreCase(numCaseOrig, igChoisi), casesLibresDep, casesLibresAtk, COULEUR_CASE_LIBRE, igChoisi);
+				do
+				{
+					afficher_texte_choix_destination();
+					clic = recuperer_coords_clic_plateau();
+					numCaseDest = convertir_clic_en_numCase(clic, igChoisi);
+					effacer_texte_choix_destination();
+					modifier_couleur_cases_libres(convertir_numCase_en_centreCase(numCaseOrig, igChoisi), casesLibresDep, casesLibresAtk, COULEUR_CASE_JOUEURS, igChoisi);
+					
+					if( !est_multiAtk && est_coup_valide_deplacement(numCaseOrig, numCaseDest))
+					{
+						effectuer_deplacement_dans_tableau_logique(numCaseOrig,numCaseDest);
+						estTourTermine = TRUE;
+						
+						afficher_case(convertir_numCase_en_centreCase(numCaseOrig, igChoisi), COULEUR_CASE_JOUEURS, igChoisi);
+						afficher_piece(convertir_numCase_en_centreCase(numCaseDest,igChoisi), igChoisi);
+						affiche_all();
+						
+						break;
+					}
+					else if(est_coup_valide_attaque(numCaseOrig, numCaseDest))
+					{
+						effectuer_attaque_dans_tableau_logique(numCaseOrig, numCaseDest, nbrePionAutreJoueur);
+						
+						afficher_case(convertir_numCase_en_centreCase(numCaseOrig, igChoisi), COULEUR_CASE_JOUEURS, igChoisi);
+						afficher_piece(convertir_numCase_en_centreCase(numCaseDest,igChoisi), igChoisi);
+						enlever_pion_qui_subit_attaque(convertir_numCase_en_centreCase(numCaseOrig, igChoisi), convertir_numCase_en_centreCase(numCaseDest, igChoisi), igChoisi);
+						
+						if(donner_position_cases_libres_attaque(numCaseDest))
+						{
+							if(est_acceptee_multi_attaque())
+							{
+								est_multiAtk = TRUE;
+								numCaseOrig.ligne = numCaseDest.ligne;
+								numCaseOrig.colonne = numCaseDest.colonne;
+								trouver_cases_libres(numCaseOrig, &casesLibresDep, &casesLibresAtk, est_multiAtk, igChoisi);
+								modifier_couleur_cases_libres(convertir_numCase_en_centreCase(numCaseOrig, igChoisi), casesLibresDep, casesLibresAtk, COULEUR_CASE_LIBRE, igChoisi);
+							}
+							else
+							{
+								estTourTermine = TRUE;
+								break;
+							}
+						}
+						else
+						{
+							estTourTermine = TRUE;
+							break;
+						}
+					}
+					else if( !est_multiAtk)
+						break;
+				}while(1);
+			}while( !estTourTermine);
 			couleurJoueur = (couleurJoueur == coul1) ? coul2 : coul1;
-			finJeu = tester_fin_jeu(couleurJoueur, *nbrePionAutreJoueur;
-		}while( !finJeu));
-		rejouer = redemander_partie(nbrePionJ1,nbrePionJ2, finJeu);
-	}while(rejouer);
+			finJeu = tester_fin_jeu(couleurJoueur, *nbrePionAutreJoueur);
+		}while( !finJeu);
+		
+	}while( redemander_partie(couleurJoueur, finJeu) );
 	
 	fill_screen(noir);
 	affiche_all();
