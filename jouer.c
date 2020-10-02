@@ -11,32 +11,7 @@ PIECE plateau[10][10];
  * \/ MODÈLE \/
  */
 
-/* Manipulation du tableau logique */
-
-void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, int *nbrePionJoueur)
-{
-	NUMCASE milieu;
-	milieu.ligne = (depart.ligne + arrivee.ligne) / 2;
-	milieu.colonne = (depart.colonne + arrivee.colonne) / 2;
-	
-	plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
-	plateau[arrivee.colonne][arrivee.ligne].coulP = plateau[depart.colonne][depart.ligne].coulP;
-	plateau[milieu.colonne][milieu.ligne].typeP = vide;
-	plateau[milieu.colonne][milieu.ligne].coulP = aucune;
-	plateau[depart.colonne][depart.ligne].typeP = vide;
-	plateau[depart.colonne][depart.ligne].coulP = aucune;
-	transformer_pion_en_dame(arrivee);
-	*nbrePionJoueur = *nbrePionJoueur - 1;
-}
-
-void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee)
-{
-	plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
-	plateau[arrivee.colonne][arrivee.ligne].coulP = plateau[depart.colonne][depart.ligne].coulP;
-	plateau[depart.colonne][depart.ligne].typeP = vide;
-	plateau[depart.colonne][depart.ligne].coulP = aucune;
-	transformer_pion_en_dame(arrivee);
-}
+/*		-- Manipulation tableau logique --		*/
 
 void initialiser_tableau()
 {
@@ -69,7 +44,32 @@ void initialiser_tableau()
 	}
 }
 
-/* Vérification des possibilités d'attaques et de déplacements */
+void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, int *nbrePionJoueur)
+{
+	NUMCASE milieu;
+	milieu.ligne = (depart.ligne + arrivee.ligne) / 2;
+	milieu.colonne = (depart.colonne + arrivee.colonne) / 2;
+	
+	plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
+	plateau[arrivee.colonne][arrivee.ligne].coulP = plateau[depart.colonne][depart.ligne].coulP;
+	plateau[milieu.colonne][milieu.ligne].typeP = vide;
+	plateau[milieu.colonne][milieu.ligne].coulP = aucune;
+	plateau[depart.colonne][depart.ligne].typeP = vide;
+	plateau[depart.colonne][depart.ligne].coulP = aucune;
+	transformer_pion_en_dame(arrivee);
+	*nbrePionJoueur = *nbrePionJoueur - 1;
+}
+
+void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee)
+{
+	plateau[arrivee.colonne][arrivee.ligne].typeP = plateau[depart.colonne][depart.ligne].typeP;
+	plateau[arrivee.colonne][arrivee.ligne].coulP = plateau[depart.colonne][depart.ligne].coulP;
+	plateau[depart.colonne][depart.ligne].typeP = vide;
+	plateau[depart.colonne][depart.ligne].coulP = aucune;
+	transformer_pion_en_dame(arrivee);
+}
+
+/*		-- Déplacement, attaque et dame --		*/
 
 /*
  * Les deux fonctions suivantes déterminent la position des cases libres autour du pion.
@@ -212,7 +212,20 @@ BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination)
 		return FALSE;
 }
 
-/* Vérification de possibilité de jeu et fin de partie */
+void transformer_pion_en_dame(NUMCASE nc)
+{
+	if(plateau[nc.colonne][nc.ligne].typeP != dame)
+	{
+		if( ( nc.ligne == 9 && plateau[nc.colonne][nc.ligne].coulP == coul1)
+		||
+		( nc.ligne == 0 && plateau[nc.colonne][nc.ligne].coulP == coul2))
+		{
+			plateau[nc.colonne][nc.ligne].typeP = dame;
+		}
+	}
+}
+
+/*		-- Test blocage --		*/
 
 BOOL est_bloque(NUMCASE depart)
 {
@@ -250,19 +263,6 @@ TYPEDEFAITE tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur)
 		return pionsBloques;
 	}
 	return peutJouer;
-}
-
-void transformer_pion_en_dame(NUMCASE nc)
-{
-	if(plateau[nc.colonne][nc.ligne].typeP != dame)
-	{
-		if( ( nc.ligne == 9 && plateau[nc.colonne][nc.ligne].coulP == coul1)
-		||
-		( nc.ligne == 0 && plateau[nc.colonne][nc.ligne].coulP == coul2))
-		{
-			plateau[nc.colonne][nc.ligne].typeP = dame;
-		}
-	}
 }
 
 /*

@@ -50,22 +50,22 @@ typedef struct NUMCASE{
  * \/ MODÈLE \/
  */
 
-/* Manipulation du tableau logique */
+/* Manipulations tableau logique */
+void initialiser_tableau();
 void effectuer_attaque_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee, int *nbrePionJoueur);
 void effectuer_deplacement_dans_tableau_logique(NUMCASE depart, NUMCASE arrivee);
-void initialiser_tableau();
 
-/* Vérification des possibilités d'attaques et de déplacements */
+/* Déplacement, attaque et dame */
 int donner_position_cases_libres_attaque(NUMCASE depart);
 int donner_position_cases_libres_deplacement(NUMCASE depart);
 BOOL est_coup_valide_attaque(NUMCASE origine, NUMCASE destination);
 BOOL est_coup_valide_deplacement(NUMCASE origine, NUMCASE destination);
+void transformer_pion_en_dame(NUMCASE pion);
 
-/* Vérification de possibilité de jeu et fin de partie */
+/* Test blocage */
 BOOL est_bloque(NUMCASE depart);
 BOOL est_joueur_bloque(COULP couleurJoueur, int nbrePionJoueur);
 TYPEDEFAITE tester_fin_jeu(COULP couleurJoueur, int nbrePionJoueur);
-void transformer_pion_en_dame(NUMCASE pion);
 
 /*
  * /\ MODÈLE /\
