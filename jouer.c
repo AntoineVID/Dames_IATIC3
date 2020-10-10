@@ -1065,7 +1065,6 @@ int main()
 								numCaseOrig.ligne = numCaseDest.ligne;
 								numCaseOrig.colonne = numCaseDest.colonne;
 								trouver_cases_libres(numCaseOrig, &casesLibresDep, &casesLibresAtk, est_multiAtk, igChoisi);
-								modifier_couleur_cases_libres(convertir_numCase_en_centreCase(numCaseOrig, igChoisi), casesLibresDep, casesLibresAtk, COULEUR_CASE_LIBRE, igChoisi);
 							}
 							else
 							{
@@ -1081,6 +1080,8 @@ int main()
 					}
 					else if( !est_multiAtk)
 						break;
+				if(est_multiAtk)
+					modifier_couleur_cases_libres(convertir_numCase_en_centreCase(numCaseOrig, igChoisi), casesLibresDep, casesLibresAtk, COULEUR_CASE_LIBRE, igChoisi);
 				}while(1);
 			}while( !estTourTermine);
 			couleurJoueur = (couleurJoueur == coul1) ? coul2 : coul1;
