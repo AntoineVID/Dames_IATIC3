@@ -408,6 +408,8 @@ void afficher_plateau(CHOIXIG igChoisi)
 	int i,j;
 	NUMCASE nc;
 	
+	fill_screen(noir);
+	
 	for(i=0;i<10;i++)
 	{
 		for(j=0;j<10;j++)
@@ -425,13 +427,9 @@ void afficher_plateau(CHOIXIG igChoisi)
 			}
 		}
 	}
-}
-
-void afficher_ecran_jeu(CHOIXIG igChoisi)
-{
-	fill_screen(noir);
-	afficher_plateau(igChoisi);
+	
 	affiche_all();
+	
 }
 
 /*		-- Afficher Interface --		*/
@@ -1008,7 +1006,7 @@ int main()
 		initialiser_tableau();
 		afficher_ecran_titre();
 		igChoisi = (recuperer_clic_oui_non(PouiHG, PouiBD, PnonHG, PnonBD)) ? ig1 : ig2;
-		afficher_ecran_jeu(igChoisi);
+		afficher_plateau(igChoisi);
 		
 		do
 		{

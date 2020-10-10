@@ -91,7 +91,6 @@ void afficher_case_ig2(POINT centre,COULEUR couleur);
 void afficher_piece(POINT centre, CHOIXIG igChoisi);
 void afficher_case(POINT centre, COULEUR couleur, CHOIXIG igChoisi);
 void afficher_plateau(CHOIXIG igChoisi);
-void afficher_ecran_jeu(CHOIXIG igChoisi);
 
 /* Afficher interface */
 void afficher_interface(CHOIXIG igChoisi, COULEUR couleur);
